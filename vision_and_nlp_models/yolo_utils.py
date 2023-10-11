@@ -28,7 +28,6 @@ def plot_results(pil_img, prob, boxes, cats):
         cl = p.argmax()
         ax.text(xmin, ymin, cats[cl], fontsize=10,
                 bbox=dict(facecolor=c, alpha=0.8))
-        print("cat:", cats[cl])
     plt.axis('off')
     plt.show()
 
