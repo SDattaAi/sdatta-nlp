@@ -1,5 +1,6 @@
 import torch
 import matplotlib.pyplot as plt
+import random
 
 # for output bounding box post-processing
 def box_cxcywh_to_xyxy(x):
@@ -14,22 +15,25 @@ def rescale_bboxes(out_bbox, size):
     b = b * torch.tensor([img_w, img_h, img_w, img_h], dtype=torch.float32)
     return b
 
-def plot_results(pil_img, prob, boxes, COLORS, cats):
+def plot_results(pil_img, prob, boxes, cats):
     plt.figure(figsize=(16,10))
     plt.imshow(pil_img)
     ax = plt.gca()
-    colors = COLORS * 100
-    for p, (xmin, ymin, xmax, ymax), c in zip(prob, boxes.tolist(), colors):
+    # generate random color for each category with random seed set to 42
+    colors = plt.cm.hsv(random.sample(range(0, 256), len(cats)))
+    for p, (xmin, ymin, xmax, ymax) in zip(prob, boxes.tolist()):
+        c = colors[p.argmax()]
         ax.add_patch(plt.Rectangle((xmin, ymin), xmax - xmin, ymax - ymin,
                                    fill=False, color=c, linewidth=3))
         cl = p.argmax()
         ax.text(xmin, ymin, cats[cl], fontsize=10,
                 bbox=dict(facecolor=c, alpha=0.8))
+        print("cat:", cats[cl])
     plt.axis('off')
     plt.show()
 
 
-def visualize_predictions(image, outputs, colors, cats, threshold=0.9):
+def visualize_predictions(image, outputs, cats, threshold=0.9):
     # keep only predictions with confidence >= threshold
     probas = outputs.logits.softmax(-1)[0, :, :-1]
     keep = probas.max(-1).values > threshold
@@ -38,4 +42,4 @@ def visualize_predictions(image, outputs, colors, cats, threshold=0.9):
     bboxes_scaled = rescale_bboxes(outputs.pred_boxes[0, keep].cpu(), image.size)
 
     # plot results
-    plot_results(image, probas[keep], bboxes_scaled, colors, cats)
+    plot_results(image, probas[keep], bboxes_scaled, cats)
