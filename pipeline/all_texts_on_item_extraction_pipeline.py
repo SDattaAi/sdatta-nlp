@@ -2,15 +2,27 @@ from vision_and_nlp_models.utils import translate_to_english, get_from_url_palme
 import pandas as pd
 from googlesearch import search
 import warnings
+from sdatta_learn.loader.load_from_postgres import get_stock_between_dates_and_stores
 warnings.filterwarnings("ignore")
-
+import json
 fashion_items = pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/fashion_items.csv').drop('Unnamed: 0', axis=1)
 artikelstamm_df = pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/l_artikelstamm.csv', sep=';')
-stock_df = pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/stock_14052023.csv')
-print(stock_df.columns)
-stock_df['item'] = stock_df['sku'].astype(str).str[0:12]
-stock_df_items = stock_df[(stock_df['to_date'] == '2099-12-31') & (stock_df['stock'].astype(int) > 0)]['item'].unique()
-print("stock_df_items" , stock_df_items)
+with open(
+        "/Users/guybasson/PycharmProjects/sdatta_packages_new/palmers_tasks/models_base_stock_tasks/outputs_folder/preparation_config_dict.json",
+        "r") as f:
+    preparation_config_dict = json.load(f)
+sales_filled_table = preparation_config_dict["sales_filled_table_name"]
+item_status_table = preparation_config_dict["sorting_bonnet_table_name"]
+pg_host = preparation_config_dict["pg_host"]
+pg_port = preparation_config_dict["pg_port"]
+pg_user = preparation_config_dict["pg_user"]
+pg_password = preparation_config_dict["pg_password"]
+pg_database = preparation_config_dict["pg_database"]
+stock_df = get_stock_between_dates_and_stores(pg_host, pg_port, pg_user, pg_password, pg_database, pd.to_datetime('15-10-2023'),
+                                             "'100' , '57'")
+stock_df['item'] = stock_df['matnr'].astype(str).str[3:15]
+stock_df['valid_to_date'] = pd.to_datetime(stock_df['valid_to_date'])
+stock_df_items = stock_df[(stock_df['valid_to_date'] == '2099-12-31') & (stock_df['lbkum'] > 0)]['item'].unique()
 fashion_items['item'] = fashion_items['sku'].astype(str).str[0:12]
 fashion_items = fashion_items[(fashion_items['item'].isin(artikelstamm_df['sammelartikel'].unique())) &
                               (fashion_items['item'].isin(stock_df_items))]
