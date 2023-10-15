@@ -10,5 +10,15 @@ print(f"Original Text: {text_to_translate}")
 print(f"Translated Text(en): {translated_text}")
 
 artikelstamm_df = pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/l_artikelstamm.csv', sep=';')
-print(artikelstamm_df.head())
+
+#print all columns
+pd.set_option('display.max_columns', None)
+rows_with_item = artikelstamm_df[artikelstamm_df['sammelartikel'] == str(item)]
+desc_from_artikelstamm = rows_with_item['wgrbez_en'].values[0]
+colors = rows_with_item['color'].unique()
+sizes = rows_with_item['size'].unique()
+
+print(f"Description from Artikelstamm: {desc_from_artikelstamm}")
+print(f"Colors: {colors}")
+print(f"Sizes: {sizes}")
 
