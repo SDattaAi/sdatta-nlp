@@ -6,11 +6,17 @@ warnings.filterwarnings("ignore")
 
 fashion_items = pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/fashion_items.csv').drop('Unnamed: 0', axis=1)
 artikelstamm_df = pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/l_artikelstamm.csv', sep=';')
-
+stock_df = pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/stock_14052023.csv')
+print(stock_df.columns)
+stock_df['item'] = stock_df['sku'].astype(str).str[0:12]
+stock_df_items = stock_df[(stock_df['to_date'] == '2099-12-31') & (stock_df['stock'].astype(int) > 0)]['item'].unique()
+print("stock_df_items" , stock_df_items)
 fashion_items['item'] = fashion_items['sku'].astype(str).str[0:12]
-fashion_items = fashion_items[fashion_items['item'].isin(artikelstamm_df['sammelartikel'].unique())]
-print(fashion_items['item'].nunique())
+fashion_items = fashion_items[(fashion_items['item'].isin(artikelstamm_df['sammelartikel'].unique())) &
+                              (fashion_items['item'].isin(stock_df_items))]
+print("number of items:", fashion_items['item'].nunique())
 
+print(stock_df)
 for item in fashion_items['item'].unique()[:5]:
     print("item", item)
     query = str(item) + " palmers"
