@@ -27,8 +27,6 @@ fashion_items['item'] = fashion_items['sku'].astype(str).str[0:12]
 fashion_items = fashion_items[(fashion_items['item'].isin(artikelstamm_df['sammelartikel'].unique())) &
                               (fashion_items['item'].isin(stock_df_items))]
 print("number of items:", fashion_items['item'].nunique())
-
-print(stock_df)
 for item in fashion_items['item'].unique()[:5]:
     print("item", item)
     query = str(item) + " palmers"
