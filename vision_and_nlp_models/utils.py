@@ -2,8 +2,62 @@
 import torch
 from torchvision.transforms import ToPILImage
 from googletrans import Translator
-import requests
+from selenium import webdriver
 from bs4 import BeautifulSoup
+import re
+import requests
+from PIL import Image
+from io import BytesIO
+
+
+def extract_image_urls(url):
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--no-sandbox')
+    browser = webdriver.Chrome(options=options)
+
+    browser.get(url)
+    browser.implicitly_wait(10)
+    html = browser.page_source
+    soup = BeautifulSoup(html, 'html.parser')
+
+    img_tags = soup.find_all('img')
+    img_urls = [img['src'] for img in img_tags if 'src' in img.attrs]
+
+    style_tags = soup.find_all(style=re.compile("background-image"))
+    for tag in style_tags:
+        match = re.search(r'url\(["\']?(.*?)["\']?\)', tag['style'])
+        if match:
+            img_urls.append(match.group(1))
+    browser.quit()
+    return img_urls
+
+
+def take_relevant_images_from_url(url, item):
+    images = extract_image_urls(url)
+    images = [img for img in images if item in img]
+    images = [img for img in images if img.endswith('.jpg') or img.endswith('.png')]
+
+    image_dict = {}
+
+    for url in images:
+        response = requests.get(url)
+        img = Image.open(BytesIO(response.content))
+        width, height = img.size
+        area = width * height
+
+        filename = url.split('/')[-1]
+
+        # Check if the filename already exists in the dictionary.
+        # If it does, compare the areas and keep the URL with the larger image.
+        if filename in image_dict:
+            existing_area, _ = image_dict[filename]
+            if area > existing_area:
+                image_dict[filename] = (area, url)
+        else:
+            image_dict[filename] = (area, url)
+    return image_dict
 
 def get_from_url_palmers(url):
     title = None
