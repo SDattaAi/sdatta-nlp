@@ -18,7 +18,7 @@ def extract_image_urls(url):
     browser = webdriver.Chrome(options=options)
 
     browser.get(url)
-    browser.implicitly_wait(10)
+    browser.implicitly_wait(5)
     html = browser.page_source
     soup = BeautifulSoup(html, 'html.parser')
 
@@ -37,7 +37,7 @@ def extract_image_urls(url):
 def take_relevant_images_from_url(url, item):
     images = extract_image_urls(url)
     images = [img for img in images if item in img]
-    images = [img for img in images if img.endswith('.jpg') or img.endswith('.png')]
+    images = [img for img in images if img.endswith('.jpg') or img.endswith('.png') or img.endswith('.jpeg') or img.endswith('.webp')]
 
     image_dict = {}
 

@@ -70,7 +70,10 @@ for item in fashion_items['item'].unique():
     print(f"Description from Artikelstamm: {desc_from_artikelstamm}")
     print(f"Colors: {colors}")
     print(f"Sizes: {sizes}")
-    if url is not  None:
+    # check if the folder exists
+
+    if url is not None :
+
         image_dict = take_relevant_images_from_url(url, item)
         # add folder path /Users/guybasson/Desktop/sdatta-nlp/photos/palmers/100549321000 if not exist
         if not os.path.exists('/Users/guybasson/Desktop/sdatta-nlp/photos/palmers/' + item):
