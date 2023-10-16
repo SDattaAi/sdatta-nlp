@@ -30,4 +30,3 @@ for (area, url) in image_dict.values():
     print(f"URL: {url}")
     print(f"Dimensions: {width} x {height}")
     print("----------------------")
-print(image_dict)
