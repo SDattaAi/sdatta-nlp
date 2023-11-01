@@ -45,16 +45,16 @@ if len(bboxes_scaled) == 0:
 else:
     print("Found ", len(bboxes_scaled), " items")
     i = 0
-    dict_of_probs_per_text_all_photos = {}
+    dict_all_yolo_bbox = {}
     for p, (xmin, ymin, xmax, ymax) in zip(probs[keep], bboxes_scaled.tolist()):
 
         cl = p.argmax()
         cl = p.argmax()
-        cat = yolo_cats[cl]
+        yolo_cat = yolo_cats[cl]
 
-        dict_of_probs_per_text = {}
-        if cat not in ['neckline', 'sleeve']:
-            print("item:", i, " cat:", cat)
+
+        if yolo_cat not in ['neckline', 'sleeve']:
+            print("item:", i, " yolo_cat:", yolo_cat)
             cropped_img = image.crop((xmin, ymin, xmax, ymax))
             cropped_img = cropped_img.resize((224, 224))
             plt.imshow(cropped_img)
@@ -62,17 +62,20 @@ else:
             plt.show()
             dict_of_probs_per_text = {}
             for key in dict_of_clip_texts.keys():
+                print("key: ", key)
                 clip_probs = clip_results(dict_of_clip_texts[key], cropped_img, clip_model, clip_processor)
                 # clip_probs are list and dict_of_clip_texts are list... i want {dict_of_clip_texts[key0]:clip_probs[0], dict_of_clip_texts[key1]:clip_probs[1], ...}
-                dict_AAA = {}
+                dict_probs = {}
                 i = 0
                 for dict_of_clip_text in dict_of_clip_texts[key]:
-                    dict_AAA[dict_of_clip_text] = clip_probs[0][i].item()
+                    dict_probs[dict_of_clip_text] = clip_probs[0][i].item()
                     i += 1
-                dict_of_probs_per_text[key] = dict_AAA
-        dict_of_probs_per_text_all_photos[i] = dict_of_probs_per_text
+                print("dict_probs: ", dict_probs)
+                dict_of_probs_per_text[key] = dict_probs
+            dict_all_yolo_bbox[yolo_cat] = dict_of_probs_per_text
     i = i + 1
 
-print("dict_of_probs_per_text_all_photos: ", dict_of_probs_per_text_all_photos)
+
+print("dict_all_yolo_bbox: ", dict_all_yolo_bbox)
 print("Real description of product: ", description)
 print("yolo categories: ", yolo_cats)
