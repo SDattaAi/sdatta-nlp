@@ -14,13 +14,7 @@ import pandas as pd
 from googlesearch import search
 import warnings
 from sdatta_learn.loader.load_from_postgres import get_stock_between_dates_and_stores
-
 warnings.filterwarnings("ignore")
-import json
-from vision_and_nlp_models.utils import take_relevant_images_from_url
-import requests
-from PIL import Image
-from io import BytesIO
 import os
 
 fashion_items = pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/fashion_items.csv').drop('Unnamed: 0', axis=1)
@@ -42,7 +36,7 @@ fashion_items = fashion_items[(fashion_items['item'].isin(artikelstamm_df['samme
 print("number of items:", fashion_items['item'].nunique())
 items_no_url = []
 len_items = len(fashion_items['item'].unique())
-df_of_items_info = pd.DataFrame()
+items_info = {}
 i = 0
 for item in fashion_items['item'].unique()[:5]:
     i = i + 1
@@ -80,15 +74,13 @@ for item in fashion_items['item'].unique()[:5]:
         item_photos = os.listdir('/Users/guybasson/Desktop/sdatta-nlp/photos/palmers/' + str(item))
         print(item_photos)
 
-    df_of_items_info = df_of_items_info.append({'item': item,
-                                                'title_from_internet_en': title_from_internet_en,
+    items_info[item] = {'title_from_internet_en': title_from_internet_en,
                                                 'desc_from_artikelstamm': desc_from_artikelstamm,
                                                 'colors_from_artikelstamm': colors_from_artikelstamm,
                                                 'sizes_from_artikelstamm': sizes_from_artikelstamm,
                                                 'description_from_internet_en': description_from_internet_en,
                                                 'materials_from_internet_en': materials_from_internet_en,
-                                                'photos_names': item_photos},
-                                               ignore_index=True)
+                                                'photos': {'item_photos': item_photos}}
 
-print(df_of_items_info)
+print(items_info)
 #df_of_items_info.to_csv('df_of_items_info.csv')

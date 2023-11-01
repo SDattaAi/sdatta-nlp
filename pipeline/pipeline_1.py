@@ -36,20 +36,23 @@ outputs = yolo_model(**inputs)
 probs = outputs.logits.softmax(-1)[0, :, :-1]
 keep = probs.max(-1).values > yolo_threshold
 bboxes_scaled = rescale_bboxes(outputs.pred_boxes[0, keep].cpu(), image.size)
+dict_all_items = {}
 #plot_results(image, probs[keep], bboxes_scaled, yolo_cats)
 if len(bboxes_scaled) == 0:
     print("No items found, take the whole image")
     for key in dict_of_clip_texts.keys():
-        clip_results(dict_of_clip_texts[key], image, clip_model, clip_processor)
+        clip_probs = clip_results(dict_of_clip_texts[key], image, clip_model, clip_processor)
 else:
     print("Found ", len(bboxes_scaled), " items")
     i = 0
+    dict_of_probs_per_text_all_photos = {}
     for p, (xmin, ymin, xmax, ymax) in zip(probs[keep], bboxes_scaled.tolist()):
-        i = i + 1
-        print()
+
         cl = p.argmax()
         cl = p.argmax()
         cat = yolo_cats[cl]
+
+        dict_of_probs_per_text = {}
         if cat not in ['neckline', 'sleeve']:
             print("item:", i, " cat:", cat)
             cropped_img = image.crop((xmin, ymin, xmax, ymax))
@@ -57,8 +60,19 @@ else:
             plt.imshow(cropped_img)
             plt.title("i: " + str(i) + " yolo cat: " + yolo_cats[cl])
             plt.show()
+            dict_of_probs_per_text = {}
             for key in dict_of_clip_texts.keys():
-                clip_results(dict_of_clip_texts[key], cropped_img, clip_model, clip_processor)
+                clip_probs = clip_results(dict_of_clip_texts[key], cropped_img, clip_model, clip_processor)
+                # clip_probs are list and dict_of_clip_texts are list... i want {dict_of_clip_texts[key0]:clip_probs[0], dict_of_clip_texts[key1]:clip_probs[1], ...}
+                dict_AAA = {}
+                i = 0
+                for dict_of_clip_text in dict_of_clip_texts[key]:
+                    dict_AAA[dict_of_clip_text] = clip_probs[0][i].item()
+                    i += 1
+                dict_of_probs_per_text[key] = dict_AAA
+        dict_of_probs_per_text_all_photos[i] = dict_of_probs_per_text
+    i = i + 1
 
+print("dict_of_probs_per_text_all_photos: ", dict_of_probs_per_text_all_photos)
 print("Real description of product: ", description)
 print("yolo categories: ", yolo_cats)
