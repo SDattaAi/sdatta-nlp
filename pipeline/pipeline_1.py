@@ -5,7 +5,7 @@ from torchvision.transforms import ToTensor
 from vision_and_nlp_models.yolo_utils import *
 from vision_and_nlp_models.utils import fix_channels
 from transformers import CLIPProcessor, CLIPModel
-from vision_and_nlp_models.clip_utils import clip_results
+from vision_and_nlp_models.clip_utils import text_image_clip_results, text_text_clip_similarity
 import json
 import warnings
 warnings.filterwarnings("ignore")
@@ -25,6 +25,12 @@ with open(clip_text_path, 'r') as f:
     dict_of_clip_texts = json.load(f)
 clip_model = CLIPModel.from_pretrained("patrickjohncyh/fashion-clip")
 clip_processor = CLIPProcessor.from_pretrained("patrickjohncyh/fashion-clip")
+
+# Example texts to compare
+print("description: ", description)
+texts = ["blue t-shirt", "Bra", "Shirt", "Dress", "Skirt", "Pants", "Hat", "sweatshirt"]
+
+print(text_text_clip_similarity(description,texts, clip_model, clip_processor))
 MODEL_NAME = "valentinafeve/yolos-fashionpedia"
 yolo_feature_extractor = YolosFeatureExtractor.from_pretrained('hustvl/yolos-small')
 yolo_model = YolosForObjectDetection.from_pretrained(MODEL_NAME)
@@ -36,23 +42,27 @@ outputs = yolo_model(**inputs)
 probs = outputs.logits.softmax(-1)[0, :, :-1]
 keep = probs.max(-1).values > yolo_threshold
 bboxes_scaled = rescale_bboxes(outputs.pred_boxes[0, keep].cpu(), image.size)
-dict_all_items = {}
-#plot_results(image, probs[keep], bboxes_scaled, yolo_cats)
+dict_clip_image_text_probability = {}
 if len(bboxes_scaled) == 0:
     print("No items found, take the whole image")
+    dict_of_probs_per_text = {}
     for key in dict_of_clip_texts.keys():
-        clip_probs = clip_results(dict_of_clip_texts[key], image, clip_model, clip_processor)
+        clip_probs = text_image_clip_results(dict_of_clip_texts[key], image, clip_model, clip_processor)
+        dict_probs = {}
+        i = 0
+        for dict_of_clip_text in dict_of_clip_texts[key]:
+            dict_probs[dict_of_clip_text] = clip_probs[0][i].item()
+            i += 1
+        print("dict_probs: ", dict_probs)
+        dict_of_probs_per_text[key] = dict_probs
+    dict_clip_image_text_probability['whole_image'] = dict_of_probs_per_text
 else:
     print("Found ", len(bboxes_scaled), " items")
     i = 0
-    dict_all_yolo_bbox = {}
     for p, (xmin, ymin, xmax, ymax) in zip(probs[keep], bboxes_scaled.tolist()):
-
         cl = p.argmax()
         cl = p.argmax()
         yolo_cat = yolo_cats[cl]
-
-
         if yolo_cat not in ['neckline', 'sleeve']:
             print("item:", i, " yolo_cat:", yolo_cat)
             cropped_img = image.crop((xmin, ymin, xmax, ymax))
@@ -63,8 +73,7 @@ else:
             dict_of_probs_per_text = {}
             for key in dict_of_clip_texts.keys():
                 print("key: ", key)
-                clip_probs = clip_results(dict_of_clip_texts[key], cropped_img, clip_model, clip_processor)
-                # clip_probs are list and dict_of_clip_texts are list... i want {dict_of_clip_texts[key0]:clip_probs[0], dict_of_clip_texts[key1]:clip_probs[1], ...}
+                clip_probs = text_image_clip_results(dict_of_clip_texts[key], cropped_img, clip_model, clip_processor)
                 dict_probs = {}
                 i = 0
                 for dict_of_clip_text in dict_of_clip_texts[key]:
@@ -72,10 +81,22 @@ else:
                     i += 1
                 print("dict_probs: ", dict_probs)
                 dict_of_probs_per_text[key] = dict_probs
-            dict_all_yolo_bbox[yolo_cat] = dict_of_probs_per_text
+            dict_clip_image_text_probability[yolo_cat] = dict_of_probs_per_text
     i = i + 1
-
-
-print("dict_all_yolo_bbox: ", dict_all_yolo_bbox)
-print("Real description of product: ", description)
+dict_clip_text_text_similarity = {}
+for key in dict_of_clip_texts.keys():
+    dict_clip_text_text_similarity[key] = text_text_clip_similarity(description, dict_of_clip_texts[key], clip_model, clip_processor)
+    dict_sim = {}
+    i = 0
+    for dict_of_clip_text in dict_of_clip_texts[key]:
+        dict_sim[dict_of_clip_text] = dict_clip_text_text_similarity[key][i].item()
+        i += 1
+    print("dict_sim: ", dict_sim)
+    dict_clip_text_text_similarity[key] = dict_sim
+    
+dict_all = {}
+dict_all['dict_clip_image_text_probability'] = dict_clip_image_text_probability
+dict_all['dict_clip_text_text_similarity'] = {"similarity":dict_clip_text_text_similarity,
+                                              "description":description}
 print("yolo categories: ", yolo_cats)
+print("dict_all", dict_all)
