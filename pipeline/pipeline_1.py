@@ -11,11 +11,11 @@ import warnings
 warnings.filterwarnings("ignore")
 # %%
 # inputs :
-yolo_threshold = 0.5
+yolo_threshold = 0.9
 item_name = "zara_item_1"
 image_path = "/Users/guybasson/Desktop/sdatta-nlp/photos/" + item_name + ".jpg"
 description_path = "/Users/guybasson/Desktop/sdatta-nlp/descriptions/" + item_name + ".txt"
-clip_text_path = "/Users/guybasson/Desktop/sdatta-nlp/clip_texts/" + item_name + ".json"
+clip_text_path = "/Users/guybasson/Desktop/sdatta-nlp/clip_texts/fashion_general.json"
 # read the description
 with open(description_path, 'r') as f:
     description = f.read()
@@ -40,7 +40,7 @@ plot_results(image, probs[keep], bboxes_scaled, yolo_cats)
 if len(bboxes_scaled) == 0:
     print("No items found, take the whole image")
     for key in dict_of_clip_texts.keys():
-        clip_results(dict_of_clip_texts[key], image, clip_model, clip_processor)
+        prob = clip_results(dict_of_clip_texts[key], image, clip_model, clip_processor)
 else:
     print("Found ", len(bboxes_scaled), " items")
     i = 0
@@ -50,14 +50,14 @@ else:
         cl = p.argmax()
         cl = p.argmax()
         cat = yolo_cats[cl]
-        if cat not in ['neckline', 'sleeve']:
-            print("item:", i, " cat:", cat)
-            cropped_img = image.crop((xmin, ymin, xmax, ymax))
-            cropped_img = cropped_img.resize((224, 224))
-            plt.imshow(cropped_img)
-            plt.title("i: " + str(i) + " yolo cat: " + yolo_cats[cl])
-            plt.show()
-            for key in dict_of_clip_texts.keys():
-                clip_results(dict_of_clip_texts[key], cropped_img, clip_model, clip_processor)
+
+        print("item:", i, " cat:", cat)
+        cropped_img = image.crop((xmin, ymin, xmax, ymax))
+        cropped_img = cropped_img.resize((224, 224))
+        plt.imshow(cropped_img)
+        plt.title("i: " + str(i) + " yolo cat: " + yolo_cats[cl])
+        plt.show()
+        for key in dict_of_clip_texts.keys():
+            prob = clip_results(dict_of_clip_texts[key], cropped_img, clip_model, clip_processor)
 
 print("Real description of product: ", description)

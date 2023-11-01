@@ -1,0 +1,12 @@
+{
+  "ItemType": ["Bra", "Shirt", "Dress", "Skirt", "Pants", "Hat"],
+  "Material": ["Cotton", "Silk", "Wool", "Leather", "Synthetic"],
+  "Seasonality": ["Summer", "Winter", "Spring", "Autumn"],
+  "Color": ["Black", "White", "Red", "Blue", "Green", "Multicolored"],
+  "Pattern": ["Plain", "Striped", "Floral", "Polka dot", "Checked"],
+  "Neckline": ["V-neck", "Round-neck", "Scoop-neck", "Crew-neck", "No-neck"],
+  "SleeveLength": ["Sleeveless", "Short sleeves", "Long sleeves", "Three-quarter sleeves"],
+  "Fit": ["Tight", "Regular", "Loose", "Oversized"],
+  "ClosureType": ["Buttons", "Zipper", "Tie", "Elastic"],
+  "SpecialFeatures": ["Pockets", "Embroidery", "Sequins", "Fringes"]
+}
