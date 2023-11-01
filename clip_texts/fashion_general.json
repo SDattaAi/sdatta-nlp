@@ -1,5 +1,5 @@
 {
-  "ItemType": ["Bra", "Shirt", "Dress", "Skirt", "Pants", "Hat"],
+  "ItemType": ["Bra", "Shirt", "Dress", "Skirt", "Pants", "Hat", "sweatshirt"],
   "Material": ["Cotton", "Silk", "Wool", "Leather", "Synthetic"],
   "Seasonality": ["Summer", "Winter", "Spring", "Autumn"],
   "Color": ["Black", "White", "Red", "Blue", "Green", "Multicolored"],
