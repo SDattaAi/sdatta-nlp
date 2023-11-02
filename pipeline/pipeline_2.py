@@ -1,11 +1,4 @@
-from PIL import Image
-from transformers import YolosFeatureExtractor, YolosForObjectDetection
-from torchvision.transforms import ToTensor
-from vision_and_nlp_models.yolo_utils import *
-from vision_and_nlp_models.utils import fix_channels
-from transformers import CLIPProcessor, CLIPModel
-from vision_and_nlp_models.clip_utils import clip_results
-import json
+
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -16,6 +9,8 @@ import warnings
 from sdatta_learn.loader.load_from_postgres import get_stock_between_dates_and_stores
 warnings.filterwarnings("ignore")
 import os
+import json
+
 
 fashion_items = pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/fashion_items.csv').drop('Unnamed: 0', axis=1)
 artikelstamm_df = pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/l_artikelstamm.csv', sep=';')
@@ -38,14 +33,14 @@ items_no_url = []
 len_items = len(fashion_items['item'].unique())
 items_info = {}
 i = 0
-for item in fashion_items['item'].unique()[:5]:
+for item in fashion_items['item'].unique():
     i = i + 1
     print(i, "/", len_items)
     print("item", item)
     rows_with_item = artikelstamm_df[artikelstamm_df['sammelartikel'] == str(item)]
     desc_from_artikelstamm = rows_with_item['wgrbez_en'].values[0]
-    colors_from_artikelstamm = rows_with_item['color'].unique()
-    sizes_from_artikelstamm = rows_with_item['size'].unique()
+    colors_from_artikelstamm = rows_with_item['color'].unique().tolist()
+    sizes_from_artikelstamm = rows_with_item['size'].unique().tolist()
     query = str(item) + " palmers"
     for url in search(query, num_results=5):
         if ("palmers" in url) and (str(item) in url):
@@ -83,4 +78,6 @@ for item in fashion_items['item'].unique()[:5]:
                                                 'photos': {'item_photos': item_photos}}
 
 print(items_info)
-#df_of_items_info.to_csv('df_of_items_info.csv')
+# save to file
+with open('items_info.json', 'w') as fp:
+    json.dump(items_info, fp)
