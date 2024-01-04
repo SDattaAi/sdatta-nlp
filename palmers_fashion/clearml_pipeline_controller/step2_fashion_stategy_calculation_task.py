@@ -7,6 +7,7 @@ args = {
     'initial_stock_sku_store': pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/palmers_fashion/clearml_pipeline_controller/initial_stock_sku_store.csv'),
     'list_intersection': [100652103000001, 100652103000002, 100652103000003, 100652103000004, 100652103000005, 100652103000006, 100652103000007, 100652103000008, 100652103000009, 100652103000010],
     'indexes_tuple_list': [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 7), (7, 8), (8, 9), (9, 10)]
+    'step1_load_all_relevant_data_for_fashion_task_id': '',
 }
 print('Arguments: {}'.format(args))
 number_of_this_machine = args["number_of_this_machine"]
