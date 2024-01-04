@@ -94,7 +94,7 @@ indexes_tuple_list = split_ids_index_per_machine(len(list_intersection), number_
 print("list_intersection:", list_intersection)
 print("indexes_tuple_list:", indexes_tuple_list)
 
-print("-----------------------------------Phase 1 - Upload artifacts-----------------------------------")
+print("-----------------------------------Phase 3 - Upload artifacts-----------------------------------")
 task.upload_artifact("f_sales_v_fashion", f_sales_v_fashion, wait_on_upload=True)
 task.upload_artifact("initial_stock_sku_store", initial_stock_sku_store, wait_on_upload=True)
 task.upload_artifact("list_intersection", list_intersection, wait_on_upload=True)
