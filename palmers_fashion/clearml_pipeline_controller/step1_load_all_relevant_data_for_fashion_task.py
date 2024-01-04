@@ -2,7 +2,7 @@
 import pandas as pd
 from sdatta_learn.remote_running.parallelization import split_ids_index_per_machine
 from sdatta_learn.loader.load_from_postgres import get_sales_between_dates_and_stores, get_fashion_skus_from_artikelstamm
-from clearml import Task
+from clearml import Task, Dataset
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -11,7 +11,7 @@ task = Task.init(project_name="palmers/training", task_name="step1_load_all_rele
 task.set_base_docker("palmerscr.azurecr.io/clean/nvidia-cuda_11.0.3-cudnn8-runtime-ubuntu20.04:1.0.1-private")
 task.set_user_properties()
 task.set_repo(repo='git@github.com:SDattaAi/sdatta-nlp.git', branch='oran-branch')
-#task.execute_remotely('ultra-high-cpu')
+task.execute_remotely('ultra-high-cpu')
 task.add_tags(['todelete'])
 
 
@@ -76,8 +76,11 @@ print("fashion_skus:", fashion_skus)
 f_sales_v_fashion = f_sales_v[f_sales_v['sku'].astype(str).isin(fashion_skus['sku'])]
 print("f_sales_v_fashion:", f_sales_v_fashion)
 f_sales_v_fashion = f_sales_v_fashion[f_sales_v_fashion['sku'].isin(fashion_skus['sku'])]
-
-initial_stock_sku_store = pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/palmers_fashion/clearml_pipeline_controller/initial_stock_sku_store.csv')
+# initial_stock_sku_store from dataset clearml
+initial_stocks_path = Dataset.get(dataset_project="palmers_fashion", dataset_name="initial_stocks").get_local_copy()
+print('initial_stocks_path:',initial_stocks_path)
+initial_stock_sku_store = pd.read_csv(initial_stocks_path + '/initial_stock_sku_store.csv')
+#initial_stock_sku_store = pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/palmers_fashion/clearml_pipeline_controller/initial_stock_sku_store.csv')
 initial_stock_sku_store['sku'] = initial_stock_sku_store['sku'].astype(str)
 print("initial_stock_sku_store:", initial_stock_sku_store)
 print("-----------------------------------Phase 2 - Filter relevant skus-----------------------------------")
