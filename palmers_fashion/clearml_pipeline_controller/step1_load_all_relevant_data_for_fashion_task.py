@@ -27,7 +27,7 @@ args = {
     "f_sales_v_table_name": "f_sales_v",
     "artikelstamm_table_name": "l_artikelstamm",
     "start_date_f_sales_v": "2020-01-01",
-    "end_date_f_sales_v": "2020-12-31"
+    "end_date_f_sales_v": "2020-02-28"
 }
 print('Arguments: {}'.format(args))
 number_of_machines = args["number_of_machines"]
@@ -84,6 +84,7 @@ f_sales_v_fashion = f_sales_v_fashion[f_sales_v_fashion['sku'].isin(fashion_skus
 initial_stocks_path = Dataset.get(dataset_project="palmers_fashion", dataset_name="initial_stocks").get_local_copy()
 print('initial_stocks_path:',initial_stocks_path)
 initial_stock_sku_store = pd.read_csv(initial_stocks_path + '/initial_stock_sku_store.csv')
+## mbew =
 #initial_stock_sku_store = pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/palmers_fashion/clearml_pipeline_controller/initial_stock_sku_store.csv')
 initial_stock_sku_store['sku'] = initial_stock_sku_store['sku'].astype(str)
 print("initial_stock_sku_store:", initial_stock_sku_store)
@@ -148,3 +149,36 @@ for store in relevant_initial_stock_sku_store['store'].unique():
             dict_stocks[store][sku] = relevant_initial_stock_sku_store[(relevant_initial_stock_sku_store['store'] == store) & (relevant_initial_stock_sku_store['sku'] == sku)]['initial_stock'].iloc[0]
 
 print('dict_stocks', dict_stocks)
+
+def creat_dict_end_dates(df_palmers):
+    """
+    dic_end_dates[date] = [(sku),...]
+    """
+    dict_end_dates = {}
+    df_palmers["date"] = df_palmers["date"].astype(str)
+    df_palmers = df_palmers[["store","sku","date","sales"]]
+    unique_groups = df_palmers.groupby(['store', 'sku'])
+    for (store, sku), group in unique_groups:
+        filtered_group_end = filter_to_last_non_zero(group)
+        if not filtered_group_end.empty:
+            end_date = filtered_group_end['date'].max()
+            if end_date not in dict_end_dates:
+                dict_end_dates[end_date] = []
+            dict_end_dates[end_date].append((sku, store))
+    return dict_end_dates
+
+
+def filter_from_first_non_zero(group):
+    first_non_zero_index = group[group['stock_palmers'].ne(0)].index.min()
+    return group.loc[first_non_zero_index:]
+#%%
+def filter_to_last_non_zero(group):
+    group['date'] = pd.to_datetime(group['date'], format='%Y-%m-%d')
+    last_non_zero_date = group[group['stock_palmers'].ne(0)]['date'].max()
+    day_after_last_non_zero = last_non_zero_date + pd.Timedelta(days=1)
+    group = group[group['date'] <= day_after_last_non_zero]
+    group["date"] = group["date"].astype(str)
+    return group
+
+
+end_dates = creat_dict_end_dates(relevant_f_sales_v_fashion, relevant_initial_stock_sku_store)
