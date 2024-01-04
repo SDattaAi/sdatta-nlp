@@ -2,19 +2,26 @@
 import pandas as pd
 import numpy as np
 import time
+from sdatta_learn.remote_running.parallelization import split_ids_index_per_machine
+
+print("split_ids_index_per_machine(500, 10):", split_ids_index_per_machine(500, 1))
+indexes_per_machine = split_ids_index_per_machine(100, 1)
 
 sales_data = pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/palmers_fashion/f_sales_v_fashion.csv')
 sales_data['date'] = pd.to_datetime(sales_data['date'])
 sales_data['store'] = sales_data['store'].astype(str)
 sales_data = sales_data.rename(columns={'total_sales':'sales'})
 sales_data['sku_store'] = sales_data['sku'].astype(str) + ',' + sales_data['store'].astype(str)
+sales_data = sales_data[sales_data.columns.drop(list(sales_data.filter(regex='price')))]
 
 mbew_fashion = pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/palmers_fashion/mbew_fashion.csv')
 mbew_fashion['valid_to_date'] = mbew_fashion['valid_to_date'].replace('2099-12-31', sales_data['date'].max().strftime('%Y-%m-%d'))
 mbew_fashion['valid_to_date'] = pd.to_datetime(mbew_fashion['valid_to_date'])
 mbew_fashion['valid_from_date'] = pd.to_datetime(mbew_fashion['valid_from_date'])
-mbew_fashion['item'] = mbew_fashion['sku'].astype(str).str[:12]
 mbew_fashion['sku_store'] = mbew_fashion['sku'].astype(str) + ',' + mbew_fashion['store'].astype(str)
+pd.set_option('display.max_rows', None)
+
+print("mbew_fashion[(mbew_fashion['sku'] == '100652103000001') & (mbew_fashion['store'] == '96')]:", mbew_fashion[(mbew_fashion['sku'] == 100652103000001) & (mbew_fashion['store'] == 96)])
 
 warehouse_data = pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/palmers_fashion/warehouse_stock_fashion.csv')
 warehouse_data['valid_to_date'] = warehouse_data['valid_to_date'].replace('2099-12-31', sales_data['date'].max().strftime('%Y-%m-%d'))
@@ -22,13 +29,19 @@ warehouse_data['valid_from_date'] = pd.to_datetime(warehouse_data['valid_from_da
 warehouse_data['valid_to_date'] = pd.to_datetime(warehouse_data['valid_to_date'])
 warehouse_data = warehouse_data.sort_values('valid_from_date')
 warehouse_data['sku_store'] = warehouse_data['sku'].astype(str) + ',' + warehouse_data['store'].astype(str)
+# print all rows pd.set_option('display.max_rows', None)
+# print all columns pd.set_option('display.max_columns', None)
+print("warehouse_data[warehouse_data['sku'] == '100652103000001']:", warehouse_data[warehouse_data['sku'] == 100652103000001])
 
-
-list1 = set(warehouse_data[warehouse_data['stock'] > 0 ]['sku'].unique())
+list1 = set(warehouse_data[warehouse_data['stock'] > 0]['sku'].unique())
 list2 = set(sales_data[(sales_data['date'] > '2019-01-01') & (sales_data['sales'] > 0)]['sku'].unique())
 list_intersection = list1.intersection(list2)
-relevant_skus = list(list_intersection)[:10]
-
+print("len list_intersection:", len(list_intersection))
+first_index_to_run = indexes_per_machine[0][0]
+last_index_to_run = indexes_per_machine[0][1]
+print("first_index_to_run:", first_index_to_run)
+print("last_index_to_run:", last_index_to_run)
+relevant_skus = list(list_intersection)[first_index_to_run:last_index_to_run]
 
 sales_data = sales_data[sales_data['sku'].isin(relevant_skus)]
 mbew_fashion = mbew_fashion[mbew_fashion['sku'].isin(relevant_skus)]
@@ -74,12 +87,17 @@ for store in sales_data['store'].unique():
 
 
 df_sales_stock_all_final = df_sales_stock_all_final.sort_values(['sku', 'store', 'date'])
+
+
 print("--- %s seconds ---" % (time.time() - start_time))
+print('first_date:', df_sales_stock_all_final['date'].min())
+print('last_date:', df_sales_stock_all_final['date'].max())
 print("df_sales_stock_all.shape:", df_sales_stock_all_final.shape)
 print("df_sales_stock_all", df_sales_stock_all_final.head())
 print("df_sales_stock_all.columns:", df_sales_stock_all_final.columns)
 print("df_sales_stock_all['store'].nunique():", df_sales_stock_all_final['store'].nunique())
 print("df_sales_stock_all['sku'].nunique():", df_sales_stock_all_final['sku'].nunique())
+print('df_sales_stock_all_final MB:', df_sales_stock_all_final.memory_usage(deep=True).sum() / 1024 ** 2)
 
 start_time = time.time()
 
@@ -96,12 +114,13 @@ df_warehouse_final = pd.merge(df_warehouse_final, warehouse_data[['sku','valid_f
 df_warehouse_final['stock'] = df_warehouse_final['stock'].ffill()
 df_warehouse_final = df_warehouse_final.drop(columns=['valid_from_date'])
 
-
-
 print("--- %s seconds ---" % (time.time() - start_time))
+print('first_date:', df_warehouse_final['date'].min())
+print('last_date:', df_warehouse_final['date'].max())
 print("df_warehouse_final.shape:", df_warehouse_final.shape)
 print("df_warehouse_final", df_warehouse_final.head())
 print("df_warehouse_final.columns:", df_warehouse_final.columns)
 print("df_warehouse_final['sku'].nunique():", df_warehouse_final['sku'].nunique())
+# i want to see how many MB is df_warehouse_final
+print("df_warehouse_final MB:", df_warehouse_final.memory_usage(deep=True).sum() / 1024 ** 2)
 
-#%%

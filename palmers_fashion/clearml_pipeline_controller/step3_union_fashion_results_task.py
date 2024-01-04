@@ -27,12 +27,12 @@ for id_of_task in ids_of_task:
     # dict
     print("final_clean_results loading")
     # dict
-    final_clean_results_path = task_id.artifacts['final_clean_results'].get_local_copy()
-    results = task_id.artifacts['results'].get_local_copy()
-    with open(final_clean_results_path, 'r') as f:
-        final_clean_results_one_task = json.load(f)
-    with open(results, 'r') as f:
-        results_one_task = json.load(f)
+    # final_clean_results_path = task_id.artifacts['final_clean_results'].get_local_copy()
+    # results = task_id.artifacts['results'].get_local_copy()
+    # with open(final_clean_results_path, 'r') as f:
+    #     final_clean_results_one_task = json.load(f)
+    # with open(results, 'r') as f:
+    #     results_one_task = json.load(f)
 
 
 
