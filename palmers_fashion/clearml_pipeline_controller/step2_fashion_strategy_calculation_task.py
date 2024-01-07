@@ -1,13 +1,14 @@
 import pandas as pd
 import json
 from clearml import Task
+import pickle
 
 Task.add_requirements('requirements.txt')
 task = Task.init(project_name="palmers_fashion", task_name="step2_fashion_strategy_calculation_task")
 task.set_base_docker("palmerscr.azurecr.io/clean/nvidia-cuda_11.0.3-cudnn8-runtime-ubuntu20.04:1.0.1-private")
 task.set_user_properties()
 task.set_repo(repo='git@github.com:SDattaAi/sdatta-nlp.git', branch='oran-branch')
-#task.execute_remotely('ultra-high-cpu')
+task.execute_remotely('ultra-high-cpu')
 task.add_tags(['todelete'])
 
 print("-----------------------------------Phase 0 - Update Arguments-----------------------------------")
@@ -15,11 +16,15 @@ args = {
     "number_of_this_machine": 0,
     'f_sales_v_fashion': pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/palmers_fashion/f_sales_v_fashion.csv'),
     'initial_stock_sku_store': pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/palmers_fashion/clearml_pipeline_controller/initial_stock_sku_store.csv'),
-    'list_intersection_skus': ['100511293000001', '100525187000003', '100535292000002', '100548702000003', '100542540000002', '100549814000001', '100548474000002', '100535248000001', '100539309000002', '100532494000004'],
-    'indexes_tuple_list': [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 7), (7, 8), (8, 9), (9, 10)],
-    'step1_load_all_relevant_data_for_fashion_task_id': '',
+    'list_intersection_skus': ['100537293000001', '100539815000003'],
+    'indexes_tuple_list': [(0, 1), (1, 2)],
+    'step1_load_all_relevant_data_for_fashion_task_id': '8d1a774f627f4f718c4b63370f54f0ee',
     'relevant_stores': ['51'],
+    "start_date": "2020-01-01",
+    "end_date": "2020-02-28"
 }
+
+task.connect(args)
 print('Arguments: {}'.format(args))
 number_of_this_machine = args["number_of_this_machine"]
 f_sales_v_fashion = args["f_sales_v_fashion"]
@@ -30,18 +35,53 @@ step1_load_all_relevant_data_for_fashion_task_id = args["step1_load_all_relevant
 relevant_stores = args["relevant_stores"]
 
 if  step1_load_all_relevant_data_for_fashion_task_id != '':
-    print("-----------------------------------need to be next task-----------------------------------")
+    step1_task = Task.get_task(task_id=step1_load_all_relevant_data_for_fashion_task_id)
+    # dict
+    f_sales_v_fashion_path = step1_task.artifacts['f_sales_v_fashion'].get_local_copy()
+    f_sales_v_fashion = pd.read_csv(f_sales_v_fashion_path)
+    print("f_sales_v_fashion loaded")
+    initial_stock_sku_store_path = step1_task.artifacts['initial_stock_sku_store'].get_local_copy()
+    initial_stock_sku_store = pd.read_csv(initial_stock_sku_store_path)
+    print("initial_stock_sku_store loaded")
+    mbew_fashion_path = step1_task.artifacts['mbew_fashion'].get_local_copy()
+    mbew_fashion = pd.read_csv(mbew_fashion_path)
+    print("mbew_fashion loaded")
+    list_intersection_skus_path = step1_task.artifacts['list_intersection_skus'].get_local_copy()
+    with open(list_intersection_skus_path, 'rb') as pickle_file:
+        list_intersection_skus = pickle.load(pickle_file)
+    print("list_intersection_skus loaded")
+    indexes_tuple_list_path = step1_task.artifacts['indexes_tuple_list'].get_local_copy()
+    with open(indexes_tuple_list_path, 'rb') as pickle_file:
+        indexes_tuple_list = pickle.load(pickle_file)
+    print("indexes_tuple_list loaded")
 
-    number_of_this_machine = 0
-    relevant_f_sales_v_fashion = f_sales_v_fashion[f_sales_v_fashion['sku'].isin(list_intersection_skus[indexes_tuple_list[number_of_this_machine][0]:indexes_tuple_list[number_of_this_machine][1]])]
-    relevant_initial_stock_sku_store = initial_stock_sku_store[initial_stock_sku_store['sku'].isin(list_intersection_skus[indexes_tuple_list[number_of_this_machine][0]:indexes_tuple_list[number_of_this_machine][1]])]
+    print("f_sales_v_fashion:", f_sales_v_fashion)
+    print("initial_stock_sku_store:", initial_stock_sku_store)
+    print("mbew_fashion:", mbew_fashion)
+    print("list_intersection_skus:", list_intersection_skus)
+    print("indexes_tuple_list:", indexes_tuple_list)
+    print("relevant_stores:", relevant_stores)
+    print("number_of_this_machine:", number_of_this_machine)
+
+    relevant_skus_to_this_machine = list_intersection_skus[indexes_tuple_list[number_of_this_machine][0]:indexes_tuple_list[number_of_this_machine][1]]
+    print("relevant_skus_to_this_machine:", relevant_skus_to_this_machine)
+
+    print("-----------------------------------take artifacts from task1-----------------------------------")
+    print("f_sales_v_fashion.info():", f_sales_v_fashion.info())
+    print("initial_stock_sku_store.info():", initial_stock_sku_store.info())
+    f_sales_v_fashion = f_sales_v_fashion[f_sales_v_fashion['sku'].astype(str).isin(relevant_skus_to_this_machine)]
+    initial_stock_sku_store = initial_stock_sku_store[initial_stock_sku_store['sku'].astype(str).isin(relevant_skus_to_this_machine)]
+    print("f_sales_v_fashion2:", f_sales_v_fashion)
+    print("initial_stock_sku_store2:", initial_stock_sku_store)
+
+    f_sales_v_fashion['date'] = pd.to_datetime(f_sales_v_fashion['date'])
 
 
     # dict_sales : dict
     #     dict_sales[store][date] = [(sku, amount), ...]
     dict_sales = {}
-    for store in relevant_f_sales_v_fashion['store'].unique():
-        store_data = relevant_f_sales_v_fashion[relevant_f_sales_v_fashion['store'] == store]
+    for store in f_sales_v_fashion['store'].unique():
+        store_data = f_sales_v_fashion[f_sales_v_fashion['store'] == store]
         dict_sales[store] = {}
         for date in store_data['date'].astype(str).unique():
             date_data = store_data[store_data['date'] == date]
@@ -57,27 +97,27 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     # dict_stocks: dict
     #     dict_stocks[store][sku] = amount
     # if store == 'VZ01' take the value in 'VZ01' and do - sum of all other stores
-    print(relevant_initial_stock_sku_store.columns)
+    print(initial_stock_sku_store.columns)
     dict_stocks = {}
-    for store in relevant_initial_stock_sku_store['store'].unique():
+    for store in initial_stock_sku_store['store'].unique():
         if store == 'VZ01':
             dict_stocks[store] = {}
-            for sku in relevant_initial_stock_sku_store[relevant_initial_stock_sku_store['store'] == store]['sku'].unique():
-                sku_warehouse_data = relevant_initial_stock_sku_store[(relevant_initial_stock_sku_store['store'] == store) & (relevant_initial_stock_sku_store['sku'] == sku)]
+            for sku in initial_stock_sku_store[initial_stock_sku_store['store'] == store]['sku'].unique():
+                sku_warehouse_data = initial_stock_sku_store[(initial_stock_sku_store['store'] == store) & (initial_stock_sku_store['sku'] == sku)]
                 first_value_of_warehouse = sku_warehouse_data['initial_stock'].iloc[0]
                 sku_warehouse_date = sku_warehouse_data['first_initial_stock_date'].iloc[0]
-                other_stores_stock_after_warehouse = relevant_initial_stock_sku_store[(relevant_initial_stock_sku_store['sku'] == sku) & (relevant_initial_stock_sku_store['store'] != store) & (relevant_initial_stock_sku_store['first_initial_stock_date'] > sku_warehouse_date)]['initial_stock'].sum()
+                other_stores_stock_after_warehouse = initial_stock_sku_store[(initial_stock_sku_store['sku'] == sku) & (initial_stock_sku_store['store'] != store) & (initial_stock_sku_store['first_initial_stock_date'] > sku_warehouse_date)]['initial_stock'].sum()
                 dict_stocks[store][sku] = first_value_of_warehouse - other_stores_stock_after_warehouse
         else:
             dict_stocks[store] = {}
-            for sku in relevant_initial_stock_sku_store[relevant_initial_stock_sku_store['store'] == store]['sku'].unique():
-                dict_stocks[store][sku] = relevant_initial_stock_sku_store[(relevant_initial_stock_sku_store['store'] == store) & (relevant_initial_stock_sku_store['sku'] == sku)]['initial_stock'].iloc[0]
+            for sku in initial_stock_sku_store[initial_stock_sku_store['store'] == store]['sku'].unique():
+                dict_stocks[store][sku] = initial_stock_sku_store[(initial_stock_sku_store['store'] == store) & (initial_stock_sku_store['sku'] == sku)]['initial_stock'].iloc[0]
 
     print('dict_stocks', dict_stocks)
 
     start_dates = {}
-    for store in relevant_initial_stock_sku_store['store'].unique():
-        store_data = relevant_initial_stock_sku_store[relevant_initial_stock_sku_store['store'] == store]
+    for store in initial_stock_sku_store['store'].unique():
+        store_data = initial_stock_sku_store[initial_stock_sku_store['store'] == store]
         for sku in store_data['sku'].unique():
             sku_data = store_data[store_data['sku'] == sku]
             sku_data = sku_data[sku_data['initial_stock'] != 0]

@@ -13,7 +13,7 @@ task = Task.init(project_name="palmers/training", task_name="step1_load_all_rele
 task.set_base_docker("palmerscr.azurecr.io/clean/nvidia-cuda_11.0.3-cudnn8-runtime-ubuntu20.04:1.0.1-private")
 task.set_user_properties()
 task.set_repo(repo='git@github.com:SDattaAi/sdatta-nlp.git', branch='oran-branch')
-#task.execute_remotely('ultra-high-cpu')
+task.execute_remotely('ultra-high-cpu')
 task.add_tags(['todelete'])
 
 def get_stock_and_skus_between_dates(store_list, skus_list, pg_host, pg_port, pg_user, pg_password, pg_database, pg_schema, start_date):
@@ -45,6 +45,7 @@ args = {
     "start_date": "2020-01-01",
     "end_date": "2020-02-28"
 }
+task.connect(args)
 print('Arguments: {}'.format(args))
 number_of_machines = args["number_of_machines"]
 relevant_stores = args["relevant_stores"]
@@ -119,7 +120,7 @@ list1 = set(f_sales_v_fashion[(f_sales_v_fashion['date'] > '2019-01-01') & (f_sa
 print("list1:", list1)
 list2 = set(initial_stock_sku_store[initial_stock_sku_store['store'] == 'VZ01']['sku'].unique())
 print("list2:", list2)
-list_intersection_skus = list(list1.intersection(list2))[:10]
+list_intersection_skus = list(list1.intersection(list2))
 print("list_intersection_skus:", list_intersection_skus)
 indexes_tuple_list = split_ids_index_per_machine(len(list_intersection_skus), number_of_machines)
 print("indexes_tuple_list:", indexes_tuple_list)
@@ -127,9 +128,10 @@ print("indexes_tuple_list:", indexes_tuple_list)
 print("-----------------------------------Phase 3 - Upload artifacts-----------------------------------")
 task.upload_artifact("f_sales_v_fashion", f_sales_v_fashion, wait_on_upload=True)
 task.upload_artifact("initial_stock_sku_store", initial_stock_sku_store, wait_on_upload=True)
+task.upload_artifact("mbew_fashion", mbew_fashion, wait_on_upload=True)
 task.upload_artifact("list_intersection_skus", list_intersection_skus, wait_on_upload=True)
 task.upload_artifact("indexes_tuple_list", indexes_tuple_list, wait_on_upload=True)
-task.upload_artifact("mbew_fashion", mbew_fashion, wait_on_upload=True)
+
 
 #
 # print("-----------------------------------need to be next task-----------------------------------")
