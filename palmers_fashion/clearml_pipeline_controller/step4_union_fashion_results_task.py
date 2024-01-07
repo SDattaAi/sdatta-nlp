@@ -1,15 +1,11 @@
 from clearml import Task
-import json
-import pandas as pd
-from datetime import datetime, timedelta
-import numpy as np
-import pytz
+
 
 Task.add_requirements("requirements.txt")
-task = Task.init(project_name="palmers/training", task_name="step2_union_fashion_results_task")
+task = Task.init(project_name="palmers_fashion", task_name="step4_union_fashion_results_task")
 task.set_base_docker("palmerscr.azurecr.io/clean/ubuntu22.04-private-pip:1.0.2")
 task.set_user_properties()
-task.set_repo(repo='git@github.com:SDattaAi/sdatta_packages_new.git', branch='oran-brach')
+task.set_repo(repo='git@github.com:SDattaAi/sdatta-nlp.git', branch='oran-branch')
 task.execute_remotely('ultra-high-cpu')
 task.add_tags(['important'])
 args = {
@@ -23,7 +19,7 @@ all_results = {}
 for id_of_task in ids_of_task:
     print("id_of_task", id_of_task)
     task_id = Task.get_task(task_id=id_of_task)
- #   print("task.artifacts", task.artifacts)
+    print("task.artifacts", task.artifacts)
     # dict
     print("final_clean_results loading")
     # dict
@@ -36,8 +32,8 @@ for id_of_task in ids_of_task:
 
 
 
-    print("-----------------------------------Phase 3 - upload tables-----------------------------------")
+print("-----------------------------------Phase 3 - upload final artifacts-----------------------------------")
 
-    # task.upload_artifact("final_clean_all_results_df", final_clean_all_results_df, wait_on_upload=True)
-    # task.upload_artifact("final_clean_all_results_dict", final_clean_all_results, wait_on_upload=True)
-    # task.upload_artifact("all_results", all_results, wait_on_upload=True)
+# task.upload_artifact("final_clean_all_results_df", final_clean_all_results_df, wait_on_upload=True)
+# task.upload_artifact("final_clean_all_results_dict", final_clean_all_results, wait_on_upload=True)
+# task.upload_artifact("all_results", all_results, wait_on_upload=True)

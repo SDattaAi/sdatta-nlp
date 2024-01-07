@@ -4,7 +4,7 @@ from clearml import Task
 import pickle
 
 Task.add_requirements('requirements.txt')
-task = Task.init(project_name="palmers_fashion", task_name="step2_fashion_strategy_calculation_task")
+task = Task.init(project_name="palmers_fashion", task_name="step2_fashion_strategy_preparation_dicts_task")
 task.set_base_docker("palmerscr.azurecr.io/clean/nvidia-cuda_11.0.3-cudnn8-runtime-ubuntu20.04:1.0.1-private")
 task.set_user_properties()
 task.set_repo(repo='git@github.com:SDattaAi/sdatta-nlp.git', branch='oran-branch')
@@ -19,7 +19,7 @@ args = {
     'list_intersection_skus': ['100537293000001', '100539815000003'],
     'indexes_tuple_list': [(0, 1), (1, 2)],
     'step1_load_all_relevant_data_for_fashion_task_id': '8d1a774f627f4f718c4b63370f54f0ee',
-    'relevant_stores': ['51'],
+    'relevant_stores': ['51', 'VZ01'],
     "start_date": "2020-01-01",
     "end_date": "2020-02-28"
 }
@@ -43,9 +43,6 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     initial_stock_sku_store_path = step1_task.artifacts['initial_stock_sku_store'].get_local_copy()
     initial_stock_sku_store = pd.read_csv(initial_stock_sku_store_path)
     print("initial_stock_sku_store loaded")
-    mbew_fashion_path = step1_task.artifacts['mbew_fashion'].get_local_copy()
-    mbew_fashion = pd.read_csv(mbew_fashion_path)
-    print("mbew_fashion loaded")
     list_intersection_skus_path = step1_task.artifacts['list_intersection_skus'].get_local_copy()
     with open(list_intersection_skus_path, 'rb') as pickle_file:
         list_intersection_skus = pickle.load(pickle_file)
@@ -57,7 +54,6 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
 
     print("f_sales_v_fashion:", f_sales_v_fashion)
     print("initial_stock_sku_store:", initial_stock_sku_store)
-    print("mbew_fashion:", mbew_fashion)
     print("list_intersection_skus:", list_intersection_skus)
     print("indexes_tuple_list:", indexes_tuple_list)
     print("relevant_stores:", relevant_stores)
@@ -73,7 +69,6 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     initial_stock_sku_store = initial_stock_sku_store[initial_stock_sku_store['sku'].astype(str).isin(relevant_skus_to_this_machine)]
     print("f_sales_v_fashion2:", f_sales_v_fashion)
     print("initial_stock_sku_store2:", initial_stock_sku_store)
-
     f_sales_v_fashion['date'] = pd.to_datetime(f_sales_v_fashion['date'])
 
     print("-----------------------------------Phase 2 - create dicts for calculations-----------------------------------")
@@ -91,7 +86,6 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
                 amount = sku_data['sales'].sum()
                 dict_sales[store][date].append((sku, amount))
 
-    print("dict_sales:", dict_sales)
 
 
     # dict_stocks: dict
@@ -99,7 +93,7 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     # if store == 'VZ01' take the value in 'VZ01' and do - sum of all other stores
     print(initial_stock_sku_store.columns)
     dict_stocks = {}
-    for store in initial_stock_sku_store['store'].unique():
+    for store in relevant_stores:
         if store == 'VZ01':
             dict_stocks[store] = {}
             for sku in initial_stock_sku_store[initial_stock_sku_store['store'] == store]['sku'].unique():
@@ -113,10 +107,9 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
             for sku in initial_stock_sku_store[initial_stock_sku_store['store'] == store]['sku'].unique():
                 dict_stocks[store][sku] = initial_stock_sku_store[(initial_stock_sku_store['store'] == store) & (initial_stock_sku_store['sku'] == sku)]['initial_stock'].iloc[0]
 
-    print('dict_stocks', dict_stocks)
 
     start_dates = {}
-    for store in initial_stock_sku_store['store'].unique():
+    for store in relevant_stores:
         store_data = initial_stock_sku_store[initial_stock_sku_store['store'] == store]
         for sku in store_data['sku'].unique():
             sku_data = store_data[store_data['sku'] == sku]
@@ -127,7 +120,6 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
                     start_dates[first_date] = []
                 start_dates[first_date].append((sku, store))
 
-    print("start_dates:", start_dates)
     # end_dates: dict
     #     end_dates[date] = [(sku),...]
     # by the last sales that not 0 in the f_sales_v_fashion
@@ -142,7 +134,6 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
                 end_dates[last_date] = []
             end_dates[last_date].append(sku)
 
-    print("end_dates:", end_dates)
 
     dict_arrivals_store_deliveries_path = r"date_to_store_deliveries_dict.json"
     dict_deliveries_from_warehouse_dict_path = r"deliveries_from_wharehouse_dict.json"
@@ -190,14 +181,25 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     skus_simulation = list_intersection_skus
 
 
+    print("dict_arrivals_store_deliveries:", dict_arrivals_store_deliveries)
+    print("dict_deliveries_from_warehouse:", dict_deliveries_from_warehouse)
+    print("stores_simulation:", stores_simulation)
+    print("skus_simulation:", skus_simulation)
+    print("dict_sales:", dict_sales)
+    print("dict_stocks:", dict_stocks)
+    print("start_dates:", start_dates)
+    print("end_dates:", end_dates)
+    print("strategy_names:", strategy_names)
 
-    #
-    # [dict_deliveries_from_warehouse, dict_arrivals_store_deliveries, stores_simulation, skus_simulation,
-    #  dict_sales, dict_stocks, start_date, end_date, start_dates, end_dates, strategy_names]
-    print("-----------------------------------Phase 3 - calculate strategies-----------------------------------")
 
-
-
-
-    print("-----------------------------------Phase 4 - upload reports-----------------------------------")
+    print("-----------------------------------Phase 4 - upload dicts & array artifacts-----------------------------------")
+    task.upload_artifact('dict_deliveries_from_warehouse', artifact_object=dict_deliveries_from_warehouse)
+    task.upload_artifact('dict_arrivals_store_deliveries', artifact_object=dict_arrivals_store_deliveries)
+    task.upload_artifact('stores_simulation', artifact_object=stores_simulation)
+    task.upload_artifact('skus_simulation', artifact_object=skus_simulation)
+    task.upload_artifact('dict_sales', artifact_object=dict_sales)
+    task.upload_artifact('dict_stocks', artifact_object=dict_stocks)
+    task.upload_artifact('start_dates', artifact_object=start_dates)
+    task.upload_artifact('end_dates', artifact_object=end_dates)
+    task.upload_artifact('strategy_names', artifact_object=strategy_names)
 

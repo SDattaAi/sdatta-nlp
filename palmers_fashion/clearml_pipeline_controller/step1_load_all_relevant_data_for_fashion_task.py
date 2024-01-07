@@ -13,7 +13,7 @@ task = Task.init(project_name="palmers_fashion", task_name="step1_load_all_relev
 task.set_base_docker("palmerscr.azurecr.io/clean/nvidia-cuda_11.0.3-cudnn8-runtime-ubuntu20.04:1.0.1-private")
 task.set_user_properties()
 task.set_repo(repo='git@github.com:SDattaAi/sdatta-nlp.git', branch='oran-branch')
-task.execute_remotely('ultra-high-cpu')
+#task.execute_remotely('ultra-high-cpu')
 task.add_tags(['todelete'])
 
 
@@ -87,17 +87,6 @@ f_sales_v_fashion = f_sales_v_fashion[f_sales_v_fashion['sku'].isin(fashion_skus
 initial_stocks_path = Dataset.get(dataset_project="palmers_fashion", dataset_name="initial_stocks").get_local_copy()
 print('initial_stocks_path:',initial_stocks_path)
 initial_stock_sku_store = pd.read_csv(initial_stocks_path + '/initial_stock_sku_store.csv')
-
-mbew_fashion = get_stock_and_skus_between_dates(store_list=relevant_stores,
-                                                  skus_list=fashion_skus['sku'].unique(),
-                                                    pg_host=pg_host,
-                                                    pg_port=pg_port,
-                                                    pg_user=pg_user,
-                                                    pg_password=pg_password,
-                                                    pg_database=pg_database,
-                                                    pg_schema='public',
-                                                    start_date=start_date)
-print(" mbew_fashion:", mbew_fashion)
 #initial_stock_sku_store = pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/palmers_fashion/clearml_pipeline_controller/initial_stock_sku_store.csv')
 initial_stock_sku_store['sku'] = initial_stock_sku_store['sku'].astype(str)
 print("initial_stock_sku_store:", initial_stock_sku_store)
@@ -114,7 +103,6 @@ print("indexes_tuple_list:", indexes_tuple_list)
 print("-----------------------------------Phase 3 - Upload artifacts-----------------------------------")
 task.upload_artifact("f_sales_v_fashion", f_sales_v_fashion, wait_on_upload=True)
 task.upload_artifact("initial_stock_sku_store", initial_stock_sku_store, wait_on_upload=True)
-task.upload_artifact("mbew_fashion", mbew_fashion, wait_on_upload=True)
 task.upload_artifact("list_intersection_skus", list_intersection_skus, wait_on_upload=True)
 task.upload_artifact("indexes_tuple_list", indexes_tuple_list, wait_on_upload=True)
 
