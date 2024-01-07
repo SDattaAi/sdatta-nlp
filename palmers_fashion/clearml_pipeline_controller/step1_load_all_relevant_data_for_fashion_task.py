@@ -9,7 +9,7 @@ import json
 import warnings
 warnings.filterwarnings("ignore")
 Task.add_requirements('requirements.txt')
-task = Task.init(project_name="palmers/training", task_name="step1_load_all_relevant_data_for_fashion_task")
+task = Task.init(project_name="palmers_fashion", task_name="step1_load_all_relevant_data_for_fashion_task")
 task.set_base_docker("palmerscr.azurecr.io/clean/nvidia-cuda_11.0.3-cudnn8-runtime-ubuntu20.04:1.0.1-private")
 task.set_user_properties()
 task.set_repo(repo='git@github.com:SDattaAi/sdatta-nlp.git', branch='oran-branch')
