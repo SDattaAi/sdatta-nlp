@@ -19,7 +19,8 @@ args = {
     "dict_stocks": {},
     "start_dates": "2018-01-01",
     "end_dates": "2023-12-23",
-    "strategy_names": "naive_bayes"
+    "strategy_names": "naive_bayes",
+    "step2_fashion_strategy_calculation_task_id": "",
 }
 print("-----------------------------------Phase 1 - update args-----------------------------------")
 
@@ -34,14 +35,16 @@ dict_stocks = args["dict_stocks"]
 start_dates = args["start_dates"]
 end_dates = args["end_dates"]
 strategy_names = args["strategy_names"]
+step2_fashion_strategy_calculation_task_id = args["step2_fashion_strategy_calculation_task_id"]
 
 print("-----------------------------------Phase 2 - strategy-----------------------------------")
-if (dict_arrivals_store_deliveries != {}) and (dict_deliveries_from_warehouse != {}) and (stores_simulation != []) and (skus_simulation != []) and (dict_sales != {}) and (dict_stocks != {}):
-    print("all args are not empty, start strategy")
-
-
+if step2_fashion_strategy_calculation_task_id != "":
+    print("step2_fashion_strategy_calculation_task_id is not empty, start strategy")
+    step2_task = Task.get_task(task_id=step2_fashion_strategy_calculation_task_id)
 
     print("-----------------------------------Phase 3 - upload final artifacts-----------------------------------")
 
 
 
+else:
+    print("step2_fashion_strategy_calculation_task_id is empty, empty task")

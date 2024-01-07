@@ -5,7 +5,7 @@ from clearml.automation import PipelineController
 from datetime import datetime, timedelta
 
 number_of_machines = 2
-start_date = '2018-01-01'
+start_date = '2023-12-01'
 end_date = '2023-12-23'
 relevant_stores = ['51', '100']
 
@@ -32,6 +32,7 @@ controller.add_step(name="step1_load_all_relevant_data_for_fashion",
                     cache_executed_step=True)
 
 
+fashion_strategy_preparation_dicts_nodes = []
 fashion_strategy_calculation_nodes = []
 for number_of_machine in range(number_of_machines):
     fashion_strategy_calculation_node_name = f"step2_fashion_strategy_preparation_dicts_{number_of_machine}"
@@ -44,6 +45,15 @@ for number_of_machine in range(number_of_machines):
                                             'General/end_date': end_date,
                                             'General/relevant_stores': relevant_stores,
                                             'General/step1_load_all_relevant_data_for_fashion_task_id': '${step1_load_all_relevant_data_for_fashion.id}'},
+                        execution_queue="ultra-high-cpu",
+                        cache_executed_step=True)
+    fashion_strategy_preparation_dicts_nodes.append(fashion_strategy_calculation_node_name)
+    fashion_strategy_calculation_node_name = f"step3_naive_bayes_fashion_strategy_{number_of_machine}"
+    controller.add_step(name=fashion_strategy_calculation_node_name,
+                        base_task_project="palmers_fashion",
+                        base_task_name="step3_naive_bayes_fashion_strategy_task",
+                        parents=[fashion_strategy_calculation_node_name],
+                        parameter_override={'General/step2_fashion_strategy_calculation_task_id': '${' + fashion_strategy_calculation_node_name + '.id}'},
                         execution_queue="ultra-high-cpu",
                         cache_executed_step=True)
     fashion_strategy_calculation_nodes.append(fashion_strategy_calculation_node_name)
