@@ -14,8 +14,8 @@ task.add_tags(['todelete'])
 print("-----------------------------------Phase 0 - Update Arguments-----------------------------------")
 args = {
     "number_of_this_machine": 0,
-    'f_sales_v_fashion': pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/palmers_fashion/f_sales_v_fashion.csv'),
-    'initial_stock_sku_store': pd.read_csv('/Users/guybasson/Desktop/sdatta-nlp/palmers_fashion/clearml_pipeline_controller/initial_stock_sku_store.csv'),
+    'f_sales_v_fashion': pd.DataFrame(),
+    'initial_stock_sku_store': pd.DataFrame(),
     'list_intersection_skus': ['100537293000001', '100539815000003'],
     'indexes_tuple_list': [(0, 1), (1, 2)],
     'step1_load_all_relevant_data_for_fashion_task_id': '8d1a774f627f4f718c4b63370f54f0ee',
@@ -66,7 +66,7 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     relevant_skus_to_this_machine = list_intersection_skus[indexes_tuple_list[number_of_this_machine][0]:indexes_tuple_list[number_of_this_machine][1]]
     print("relevant_skus_to_this_machine:", relevant_skus_to_this_machine)
 
-    print("-----------------------------------take artifacts from task1-----------------------------------")
+    print("-----------------------------------Phase 1 - take artifacts from task1-----------------------------------")
     print("f_sales_v_fashion.info():", f_sales_v_fashion.info())
     print("initial_stock_sku_store.info():", initial_stock_sku_store.info())
     f_sales_v_fashion = f_sales_v_fashion[f_sales_v_fashion['sku'].astype(str).isin(relevant_skus_to_this_machine)]
@@ -76,7 +76,7 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
 
     f_sales_v_fashion['date'] = pd.to_datetime(f_sales_v_fashion['date'])
 
-
+    print("-----------------------------------Phase 2 - create dicts for calculations-----------------------------------")
     # dict_sales : dict
     #     dict_sales[store][date] = [(sku, amount), ...]
     dict_sales = {}

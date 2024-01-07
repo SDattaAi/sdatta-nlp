@@ -1,7 +1,7 @@
 
 import pandas as pd
 from sdatta_learn.remote_running.parallelization import split_ids_index_per_machine
-from sdatta_learn.loader.load_from_postgres import get_sales_between_dates_and_stores, get_fashion_skus_from_artikelstamm
+from sdatta_learn.loader.load_from_postgres import get_sales_between_dates_and_stores, get_fashion_skus_from_artikelstamm, get_stock_and_skus_between_dates
 from clearml import Task, Dataset
 from palmers_agents_general.db_handler import PostgresHandler
 import json
@@ -16,20 +16,6 @@ task.set_repo(repo='git@github.com:SDattaAi/sdatta-nlp.git', branch='oran-branch
 task.execute_remotely('ultra-high-cpu')
 task.add_tags(['todelete'])
 
-def get_stock_and_skus_between_dates(store_list, skus_list, pg_host, pg_port, pg_user, pg_password, pg_database, pg_schema, start_date):
-    with PostgresHandler(host=pg_host, port=pg_port, user=pg_user, password=pg_password,
-                         dbname=pg_database) as handler:
-        select_query = f"""SELECT bwkey as store, substring(matnr, 4) as sku, lbkum as stock, valid_from_date, valid_to_date
-                          FROM {pg_schema}.mbew
-                          WHERE bwkey in %s 
-                          AND substring(matnr, 4) in %s 
-                          AND valid_to_date >= \'{start_date}\'
-                        """
-
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            stock_df = handler.read_sql_query(select_query, params=(tuple(store_list), tuple(skus_list)))
-    return stock_df
 
 print("-----------------------------------Phase 0 - Update Arguments-----------------------------------")
 args = {
