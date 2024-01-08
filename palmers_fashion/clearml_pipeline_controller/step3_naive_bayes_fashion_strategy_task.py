@@ -1,6 +1,8 @@
-from clearml import Task
 import json
 import pickle
+
+from clearml import Task
+
 from naive_bayes_strategy import main_simulation
 
 Task.add_requirements("requirements.txt")
@@ -22,7 +24,7 @@ args = {
     "start_dates": {},
     "end_dates": {},
     "strategy_names": "naive_bayes",
-    "step2_fashion_strategy_calculation_task_id": "c609859f336a42299560fe764a67f0bf",
+    "step2_fashion_strategy_calculation_task_id": "cd722fbb131b49649e785fa7dd563cba",
     "start_date": '2023-12-01',
     "end_date": '2023-12-07',
 }
@@ -48,7 +50,6 @@ if step2_fashion_strategy_calculation_task_id != "":
     print("step2_fashion_strategy_calculation_task_id is not empty, start strategy")
     step2_task = Task.get_task(task_id=step2_fashion_strategy_calculation_task_id)
     step2_task_artifacts = step2_task.artifacts
-    print("step2_task_artifacts: ", step2_task_artifacts)
     # task.upload_artifact('dict_deliveries_from_warehouse', artifact_object=dict_deliveries_from_warehouse)
     # task.upload_artifact('dict_arrivals_store_deliveries', artifact_object=dict_arrivals_store_deliveries)
     # task.upload_artifact('stores_simulation', artifact_object=stores_simulation)
@@ -62,15 +63,12 @@ if step2_fashion_strategy_calculation_task_id != "":
     # json read
     with open(dict_deliveries_from_warehouse_path, 'r') as f:
         dict_deliveries_from_warehouse = json.load(f)
-    print("dict_deliveries_from_warehouse.keys(): ", dict_deliveries_from_warehouse.keys())
     dict_arrivals_store_deliveries_path = step2_task_artifacts['dict_arrivals_store_deliveries'].get_local_copy()
     with open(dict_arrivals_store_deliveries_path, 'r') as f:
         dict_arrivals_store_deliveries = json.load(f)
-    print("dict_arrivals_store_deliveries.keys(): ", dict_arrivals_store_deliveries.keys())
     stores_simulation_path = step2_task_artifacts['stores_simulation'].get_local_copy()
     with open(stores_simulation_path, 'rb') as f:
         stores_simulation = pickle.load(f)
-    print("stores_simulation: ", stores_simulation)
     skus_simulation_path = step2_task_artifacts['skus_simulation'].get_local_copy()
     with open(skus_simulation_path, 'rb') as f:
         skus_simulation = pickle.load(f)
@@ -78,19 +76,15 @@ if step2_fashion_strategy_calculation_task_id != "":
     dict_sales_path = step2_task_artifacts['dict_sales'].get_local_copy()
     with open(dict_sales_path, 'rb') as f:
         dict_sales = pickle.load(f)
-    print("dict_sales: ", dict_sales)
     dict_stocks_path = step2_task_artifacts['dict_stocks'].get_local_copy()
-    with open(dict_stocks_path, 'rb') as f:
-        dict_stocks = pickle.load(f)
-    print("dict_stocks: ", dict_stocks)
+    with open(dict_stocks_path, 'r') as f:
+        dict_stocks = json.load(f)
     start_dates_path = step2_task_artifacts['start_dates'].get_local_copy()
     with open(start_dates_path, 'r') as f:
         start_dates = json.load(f)
-    print("start_dates: ", start_dates)
     end_dates_path = step2_task_artifacts['end_dates'].get_local_copy()
     with open(end_dates_path, 'r') as f:
         end_dates = json.load(f)
-    print("end_dates: ", end_dates)
     strategy_names_path = step2_task_artifacts['strategy_names'].get_local_copy()
     # read as str from txt
     with open(strategy_names_path, 'r') as f:
@@ -128,6 +122,8 @@ if step2_fashion_strategy_calculation_task_id != "":
                     start_dates=start_dates,
                     end_dates=end_dates,
                     strategy_names=strategy_names)
+
+
 
 
     print("-----------------------------------Phase 4 - upload final artifacts-----------------------------------")

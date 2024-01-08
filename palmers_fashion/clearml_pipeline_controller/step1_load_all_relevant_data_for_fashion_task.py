@@ -1,12 +1,12 @@
 
-import pandas as pd
-from sdatta_learn.remote_running.parallelization import split_ids_index_per_machine
-from sdatta_learn.loader.load_from_postgres import get_sales_between_dates_and_stores, get_fashion_skus_from_artikelstamm, get_stock_and_skus_between_dates
-from clearml import Task, Dataset
-from palmers_agents_general.db_handler import PostgresHandler
-import json
-
 import warnings
+
+import pandas as pd
+from clearml import Task, Dataset
+from sdatta_learn.loader.load_from_postgres import get_sales_between_dates_and_stores, \
+    get_fashion_skus_from_artikelstamm
+from sdatta_learn.remote_running.parallelization import split_ids_index_per_machine
+
 warnings.filterwarnings("ignore")
 Task.add_requirements('requirements.txt')
 task = Task.init(project_name="palmers_fashion", task_name="step1_load_all_relevant_data_for_fashion_task")

@@ -1,7 +1,8 @@
-import pandas as pd
 import json
-from clearml import Task
 import pickle
+
+import pandas as pd
+from clearml import Task
 
 Task.add_requirements('requirements.txt')
 task = Task.init(project_name="palmers_fashion", task_name="step2_fashion_strategy_preparation_dicts_task")
@@ -61,16 +62,16 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     print("relevant_stores:", relevant_stores)
     print("number_of_this_machine:", number_of_this_machine)
 
-    relevant_skus_to_this_machine = list_intersection_skus[indexes_tuple_list[number_of_this_machine][0]:indexes_tuple_list[number_of_this_machine][1]]
+    relevant_skus_to_this_machine = list_intersection_skus[indexes_tuple_list[number_of_this_machine][0]:indexes_tuple_list[number_of_this_machine][1]][:1]
     print("relevant_skus_to_this_machine:", relevant_skus_to_this_machine)
 
     print("-----------------------------------Phase 1 - take artifacts from task1-----------------------------------")
-    print("f_sales_v_fashion.info():", f_sales_v_fashion.info())
-    print("initial_stock_sku_store.info():", initial_stock_sku_store.info())
+    print("f_sales_v_fashion['sku'].num_unique():", f_sales_v_fashion['sku'].nunique())
+    print("initial_stock_sku_store['sku'].num_unique():", initial_stock_sku_store['sku'].nunique())
     f_sales_v_fashion = f_sales_v_fashion[f_sales_v_fashion['sku'].astype(str).isin(relevant_skus_to_this_machine)]
     initial_stock_sku_store = initial_stock_sku_store[initial_stock_sku_store['sku'].astype(str).isin(relevant_skus_to_this_machine)]
-    print("f_sales_v_fashion2:", f_sales_v_fashion)
-    print("initial_stock_sku_store2:", initial_stock_sku_store)
+    print("f_sales_v_fashion2['sku'].num_unique():", f_sales_v_fashion['sku'].nunique())
+    print("initial_stock_sku_store2['sku'].num_unique():", initial_stock_sku_store['sku'].nunique())
     f_sales_v_fashion['date'] = pd.to_datetime(f_sales_v_fashion['date'])
 
     print("-----------------------------------Phase 2 - create dicts for calculations-----------------------------------")
@@ -145,7 +146,7 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     with open(dict_deliveries_from_warehouse_dict_path) as json_file:
         dict_deliveries_from_warehouse = json.load(json_file)
     #%%
-    fix_dict_arrivals_stors ={84:173,
+    fix_dict_arrivals_stores ={84:173,
      95:47,
      91:225,
      90:180,
@@ -162,12 +163,12 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
      89:57,82:106,7:173,69:26}
     #%%
     for date,stores in dict_arrivals_store_deliveries.items():
-        for store_problem,store_same in fix_dict_arrivals_stors.items():
+        for store_problem,store_same in fix_dict_arrivals_stores.items():
             if store_same in stores:
                 stores.append(store_problem)
     #%%
     for date,stores in dict_deliveries_from_warehouse.items():
-        for store_problem,store_same in fix_dict_arrivals_stors.items():
+        for store_problem,store_same in fix_dict_arrivals_stores.items():
             if store_same in stores:
                 stores.append(store_problem)
     #%%
