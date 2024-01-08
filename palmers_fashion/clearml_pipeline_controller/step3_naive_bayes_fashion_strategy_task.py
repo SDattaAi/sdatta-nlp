@@ -1,6 +1,6 @@
 from clearml import Task
+import json
 import pickle
-import pandas as pd
 from naive_bayes_strategy import main_simulation
 
 Task.add_requirements("requirements.txt")
@@ -22,7 +22,7 @@ args = {
     "start_dates": "2018-01-01",
     "end_dates": "2023-12-23",
     "strategy_names": "naive_bayes",
-    "step2_fashion_strategy_calculation_task_id": "e26c9f50753642b192fb508f5440d859",
+    "step2_fashion_strategy_calculation_task_id": "8fb6340ee77242eaa453bf788f969d73",
 }
 print("-----------------------------------Phase 1 - update args-----------------------------------")
 
@@ -55,12 +55,13 @@ if step2_fashion_strategy_calculation_task_id != "":
     # task.upload_artifact('end_dates', artifact_object=end_dates)
     # task.upload_artifact('strategy_names', artifact_object=strategy_names)
     dict_deliveries_from_warehouse_path = step2_task_artifacts['dict_deliveries_from_warehouse'].get_local_copy()
-    with open(dict_deliveries_from_warehouse_path, 'rb') as f:
-        dict_deliveries_from_warehouse = pickle.load(f)
+    # json read
+    with open(dict_deliveries_from_warehouse_path, 'r') as f:
+        dict_deliveries_from_warehouse = json.load(f)
     print("dict_deliveries_from_warehouse: ", dict_deliveries_from_warehouse)
     dict_arrivals_store_deliveries_path = step2_task_artifacts['dict_arrivals_store_deliveries'].get_local_copy()
-    with open(dict_arrivals_store_deliveries_path, 'rb') as f:
-        dict_arrivals_store_deliveries = pickle.load(f)
+    with open(dict_arrivals_store_deliveries_path, 'r') as f:
+        dict_arrivals_store_deliveries = json.load(f)
     print("dict_arrivals_store_deliveries: ", dict_arrivals_store_deliveries)
     stores_simulation_path = step2_task_artifacts['stores_simulation'].get_local_copy()
     with open(stores_simulation_path, 'rb') as f:
@@ -87,11 +88,20 @@ if step2_fashion_strategy_calculation_task_id != "":
         end_dates = pickle.load(f)
     print("end_dates: ", end_dates)
     strategy_names_path = step2_task_artifacts['strategy_names'].get_local_copy()
-    with open(strategy_names_path, 'rb') as f:
-        strategy_names = pickle.load(f)
-    print("strategy_names: ", strategy_names)
+    # read as str from txt
+    with open(strategy_names_path, 'r') as f:
+        strategy_names = f.read()
 
     print("-----------------------------------Phase 3 - start strategy-----------------------------------")
+    main_simulation(dict_arrivals_store_deliveries=dict_arrivals_store_deliveries,
+                    dict_deliveries_from_warehouse=dict_deliveries_from_warehouse,
+                    stores_simulation=stores_simulation,
+                    skus_simulation=skus_simulation,
+                    dict_sales=dict_sales,
+                    dict_stocks=dict_stocks,
+                    start_dates=start_dates,
+                    end_dates=end_dates,
+                    strategy_names=strategy_names)
 
 
     print("-----------------------------------Phase 4 - upload final artifacts-----------------------------------")

@@ -45,7 +45,7 @@ for number_of_machine in range(number_of_machines):
     fashion_strategy_preparation_dicts_node_name = f"step2_fashion_strategy_preparation_dicts_{number_of_machine}"
     controller.add_step(name=fashion_strategy_preparation_dicts_node_name,
                         base_task_project="palmers_fashion",  #####sales_filled_table_name
-                        base_task_name="step2_fashion_strategy_calculation_task",
+                        base_task_name="step2_fashion_strategy_preparation_dicts_task",
                         parents=[f"step1_load_all_relevant_data_for_fashion"],
                         parameter_override={"General/number_of_this_machine": number_of_machine,
                                             'General/start_date': start_date,
