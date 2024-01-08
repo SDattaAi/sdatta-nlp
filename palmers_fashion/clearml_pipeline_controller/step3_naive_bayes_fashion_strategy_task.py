@@ -10,7 +10,7 @@ task = Task.init(project_name="palmers_fashion", task_name="step3_naive_bayes_fa
 task.set_base_docker("palmerscr.azurecr.io/clean/ubuntu22.04-private-pip:1.0.2")
 task.set_user_properties()
 task.set_repo(repo='git@github.com:SDattaAi/sdatta-nlp.git', branch='oran-branch')
-#task.execute_remotely('ultra-high-cpu')
+task.execute_remotely('ultra-high-cpu')
 task.add_tags(['todelete'])
 
 
@@ -132,7 +132,7 @@ if step2_fashion_strategy_calculation_task_id != "":
                     start_dates=start_dates,
                     end_dates=end_dates,
                     strategy_names=strategy_names,
-                    task_clearml=None)
+                    task_clearml=task)
 
 
 

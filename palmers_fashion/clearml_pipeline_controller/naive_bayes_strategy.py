@@ -340,7 +340,7 @@ def kill_and_save_results(accumulated_stocks: dict, d_wo_inv: dict, d_wo_inv_wo_
         with open(file_path, 'wb') as f:
             pickle.dump(final_kpi_res, f)
     else:
-        clearml_task.upload_artifact('final_kpi_res', artifact_object=final_kpi_res)
+        clearml_task.upload_artifact(f'final_kpi_res_{date_}', artifact_object=final_kpi_res)
 
     print("final_kpi_res: ", final_kpi_res)
     return accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, loose, MissedSales
