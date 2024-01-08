@@ -10,7 +10,7 @@ task = Task.init(project_name="palmers_fashion", task_name="step3_naive_bayes_fa
 task.set_base_docker("palmerscr.azurecr.io/clean/ubuntu22.04-private-pip:1.0.2")
 task.set_user_properties()
 task.set_repo(repo='git@github.com:SDattaAi/sdatta-nlp.git', branch='oran-branch')
-task.execute_remotely('ultra-high-cpu')
+#task.execute_remotely('ultra-high-cpu')
 task.add_tags(['todelete'])
 
 
@@ -24,7 +24,7 @@ args = {
     "start_dates": {},
     "end_dates": {},
     "strategy_names": "naive_bayes",
-    "step2_fashion_strategy_calculation_task_id": "034d6fed4daf47b49f3357983cb30daa",
+    "step2_fashion_strategy_calculation_task_id": "538dc22a35034b02b3d4d72bed46228d",
     "start_date": '2023-12-01',
     "end_date": '2023-12-07',
 }
@@ -48,6 +48,7 @@ step2_fashion_strategy_calculation_task_id = args["step2_fashion_strategy_calcul
 print("-----------------------------------Phase 2 - load artifact-----------------------------------")
 if step2_fashion_strategy_calculation_task_id != "":
     print("step2_fashion_strategy_calculation_task_id is not empty, start strategy")
+    print("step2_fashion_strategy_calculation_task_id: ", step2_fashion_strategy_calculation_task_id)
     step2_task = Task.get_task(task_id=step2_fashion_strategy_calculation_task_id)
     step2_task_artifacts = step2_task.artifacts
     # task.upload_artifact('dict_deliveries_from_warehouse', artifact_object=dict_deliveries_from_warehouse)
