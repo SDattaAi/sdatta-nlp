@@ -24,7 +24,7 @@ args = {
     "start_dates": {},
     "end_dates": {},
     "strategy_names": "naive_bayes",
-    "step2_fashion_strategy_calculation_task_id": "cd722fbb131b49649e785fa7dd563cba",
+    "step2_fashion_strategy_calculation_task_id": "034d6fed4daf47b49f3357983cb30daa",
     "start_date": '2023-12-01',
     "end_date": '2023-12-07',
 }
@@ -111,6 +111,16 @@ if step2_fashion_strategy_calculation_task_id != "":
     # Filter SKUs for both dictionaries
     filtered_deliveries_from_warehouse = filter_skus(dict_deliveries_from_warehouse, skus_simulation)
     filtered_arrivals_store_deliveries = filter_skus(dict_arrivals_store_deliveries, skus_simulation)
+    print("dict_arrivals_store_deliveries: ", dict_arrivals_store_deliveries)
+    print("dict_deliveries_from_warehouse: ", dict_deliveries_from_warehouse)
+    print("stores_simulation: ", stores_simulation)
+    print("skus_simulation: ", skus_simulation)
+    print("dict_sales: ", dict_sales)
+    print("dict_stocks: ", dict_stocks)
+    print("start_dates: ", start_dates)
+    print("end_dates: ", end_dates)
+    print("strategy_names: ", strategy_names)
+
 
     print("-----------------------------------Phase 3 - start strategy-----------------------------------")
     main_simulation(dict_arrivals_store_deliveries=dict_arrivals_store_deliveries,

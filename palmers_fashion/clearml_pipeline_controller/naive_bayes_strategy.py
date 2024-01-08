@@ -96,9 +96,6 @@ def update_current_stock_with_new_sku(current_stock: dict,start_dates: dict, dat
     """
     for data in start_dates[date]:
         sku, store = data
-        print("sku: ", sku)
-        print("store: ", store)
-        print("dict_stocks[store]", dict_stocks[store])
         current_stock[store][sku] = dict_stocks[store][sku]
         Ex_total_days_wo_inv[sku][store] = {'len': 0, 'sum': 0}
         Ex_i_s_r[sku][store] = {'len': 0, 'sum': 0}
@@ -209,8 +206,6 @@ def update_kpi_wo_inv(d_wo_inv: dict, d_wo_inv_wo_wh: dict, current_stock: dict,
                 if store != "VZ01" and current_stock[store][sku] == 0:
                     d_wo_inv_wo_wh[sku][store] += 1
             else:
-                print(f"store: {store}, sku: {sku}")
-                print("current_stock[store][sku]: ", current_stock[store][sku])
                 Ex_total_days_wo_inv[sku][store]['len'] += 1
     return d_wo_inv, d_wo_inv_wo_wh, Ex_total_days_wo_inv
 
@@ -340,6 +335,7 @@ def kill_and_save_results(accumulated_stocks: dict, d_wo_inv: dict, d_wo_inv_wo_
         del loose[sku]
     date_ = date.replace("-", "_")
     file_path = os.path.join(simulation_dir, f'{date_}.pkl')
+    print("file_path: ", file_path)
     with open(file_path, 'wb') as f:
         pickle.dump(final_kpi_res, f)
     return accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, loose, MissedSales
@@ -540,6 +536,7 @@ def main_simulation(dict_deliveries_from_warehouse: dict, dict_arrivals_store_de
     """
     AshlonStock, MissedSales, ActiveStores, current_stock, accumulated_stocks, accumulated_AshlonStock, accumulated_ActiveStores = initialize_all_the_dicts(
         stores_simulation, skus_simulation, start_dates, dict_stocks)
+    print("ActiveStores: ", ActiveStores)
     d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, loose = initialize_kpi_structures(
         stores_simulation, skus_simulation)
     start_dates_copy = start_dates.copy()
