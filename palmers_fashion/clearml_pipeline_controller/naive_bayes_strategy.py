@@ -96,6 +96,9 @@ def update_current_stock_with_new_sku(current_stock: dict,start_dates: dict, dat
     """
     for data in start_dates[date]:
         sku, store = data
+        print("sku: ", sku)
+        print("store: ", store)
+        print("dict_stocks[store]", dict_stocks[store])
         current_stock[store][sku] = dict_stocks[store][sku]
         Ex_total_days_wo_inv[sku][store] = {'len': 0, 'sum': 0}
         Ex_i_s_r[sku][store] = {'len': 0, 'sum': 0}

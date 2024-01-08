@@ -84,12 +84,12 @@ if step2_fashion_strategy_calculation_task_id != "":
         dict_stocks = pickle.load(f)
     print("dict_stocks: ", dict_stocks)
     start_dates_path = step2_task_artifacts['start_dates'].get_local_copy()
-    with open(start_dates_path, 'rb') as f:
-        start_dates = pickle.load(f)
+    with open(start_dates_path, 'r') as f:
+        start_dates = json.load(f)
     print("start_dates: ", start_dates)
     end_dates_path = step2_task_artifacts['end_dates'].get_local_copy()
-    with open(end_dates_path, 'rb') as f:
-        end_dates = pickle.load(f)
+    with open(end_dates_path, 'r') as f:
+        end_dates = json.load(f)
     print("end_dates: ", end_dates)
     strategy_names_path = step2_task_artifacts['strategy_names'].get_local_copy()
     # read as str from txt

@@ -103,7 +103,7 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
                 first_value_of_warehouse = sku_warehouse_data['initial_stock'].iloc[0]
                 sku_warehouse_date = sku_warehouse_data['first_initial_stock_date'].iloc[0]
                 other_stores_stock_after_warehouse = initial_stock_sku_store[(initial_stock_sku_store['sku'] == sku) & (initial_stock_sku_store['store'] != store) & (initial_stock_sku_store['first_initial_stock_date'] > sku_warehouse_date)]['initial_stock'].sum()
-                dict_stocks[store][sku] = first_value_of_warehouse - other_stores_stock_after_warehouse
+                dict_stocks[str(store)][str(sku)] = first_value_of_warehouse - other_stores_stock_after_warehouse
         else:
             dict_stocks[str(store)] = {}
             for sku in initial_stock_sku_store[initial_stock_sku_store['store'] == store]['sku'].unique():
