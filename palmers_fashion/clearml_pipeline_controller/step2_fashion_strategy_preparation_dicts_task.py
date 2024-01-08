@@ -33,6 +33,8 @@ list_intersection_skus = args["list_intersection_skus"]
 indexes_tuple_list = args["indexes_tuple_list"]
 step1_load_all_relevant_data_for_fashion_task_id = args["step1_load_all_relevant_data_for_fashion_task_id"]
 relevant_stores = args["relevant_stores"]
+start_date = args["start_date"]
+end_date = args["end_date"]
 
 if  step1_load_all_relevant_data_for_fashion_task_id != '':
     step1_task = Task.get_task(task_id=step1_load_all_relevant_data_for_fashion_task_id)
@@ -77,14 +79,14 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     dict_sales = {}
     for store in f_sales_v_fashion['store'].unique():
         store_data = f_sales_v_fashion[f_sales_v_fashion['store'] == store]
-        dict_sales[store] = {}
+        dict_sales[str(store)] = {}
         for date in store_data['date'].astype(str).unique():
             date_data = store_data[store_data['date'] == date]
-            dict_sales[store][date] = []
+            dict_sales[str(store)][str(date)] = []
             for sku in date_data['sku'].unique():
                 sku_data = date_data[date_data['sku'] == sku]
                 amount = sku_data['sales'].sum()
-                dict_sales[store][date].append((sku, amount))
+                dict_sales[str(store)][str(date)].append((str(sku), amount))
 
 
 
@@ -95,7 +97,7 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     dict_stocks = {}
     for store in relevant_stores:
         if store == 'VZ01':
-            dict_stocks[store] = {}
+            dict_stocks[str(store)] = {}
             for sku in initial_stock_sku_store[initial_stock_sku_store['store'] == store]['sku'].unique():
                 sku_warehouse_data = initial_stock_sku_store[(initial_stock_sku_store['store'] == store) & (initial_stock_sku_store['sku'] == sku)]
                 first_value_of_warehouse = sku_warehouse_data['initial_stock'].iloc[0]
@@ -103,9 +105,9 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
                 other_stores_stock_after_warehouse = initial_stock_sku_store[(initial_stock_sku_store['sku'] == sku) & (initial_stock_sku_store['store'] != store) & (initial_stock_sku_store['first_initial_stock_date'] > sku_warehouse_date)]['initial_stock'].sum()
                 dict_stocks[store][sku] = first_value_of_warehouse - other_stores_stock_after_warehouse
         else:
-            dict_stocks[store] = {}
+            dict_stocks[str(store)] = {}
             for sku in initial_stock_sku_store[initial_stock_sku_store['store'] == store]['sku'].unique():
-                dict_stocks[store][sku] = initial_stock_sku_store[(initial_stock_sku_store['store'] == store) & (initial_stock_sku_store['sku'] == sku)]['initial_stock'].iloc[0]
+                dict_stocks[str(store)][str(sku)] = initial_stock_sku_store[(initial_stock_sku_store['store'] == store) & (initial_stock_sku_store['sku'] == sku)]['initial_stock'].iloc[0]
 
 
     start_dates = {}
@@ -117,8 +119,8 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
             if not sku_data.empty:
                 first_date = sku_data['first_initial_stock_date'].iloc[0]
                 if first_date not in start_dates:
-                    start_dates[first_date] = []
-                start_dates[first_date].append((sku, store))
+                    start_dates[str(first_date)] = []
+                start_dates[str(first_date)].append((str(sku), str(store)))
 
     # end_dates: dict
     #     end_dates[date] = [(sku),...]
@@ -131,8 +133,9 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
         if not sku_data.empty:
             last_date = sku_data['date'].max().strftime('%Y-%m-%d')
             if last_date not in end_dates:
-                end_dates[last_date] = []
-            end_dates[last_date].append(sku)
+                end_dates[str(last_date)] = []
+            end_dates[str(last_date)].append(str(sku))
+
 
 
     dict_arrivals_store_deliveries_path = r"date_to_store_deliveries_dict.json"
@@ -176,9 +179,13 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
             unique_stores_in_2020.update(stores)
 
 
+
+
+
+
     strategy_names = "naive_bayes"
     stores_simulation = relevant_stores
-    skus_simulation = list_intersection_skus
+    skus_simulation = relevant_skus_to_this_machine
 
 
     print("dict_arrivals_store_deliveries:", dict_arrivals_store_deliveries)

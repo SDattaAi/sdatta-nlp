@@ -19,15 +19,19 @@ args = {
     "skus_simulation": [],
     "dict_sales": {},
     "dict_stocks": {},
-    "start_dates": "2018-01-01",
-    "end_dates": "2023-12-23",
+    "start_dates": {},
+    "end_dates": {},
     "strategy_names": "naive_bayes",
-    "step2_fashion_strategy_calculation_task_id": "8fb6340ee77242eaa453bf788f969d73",
+    "step2_fashion_strategy_calculation_task_id": "c609859f336a42299560fe764a67f0bf",
+    "start_date": '2023-12-01',
+    "end_date": '2023-12-07',
 }
 print("-----------------------------------Phase 1 - update args-----------------------------------")
 
 task.connect(args)
 print('Arguments: {}'.format(args))
+start_date = args["start_date"]
+end_date = args["end_date"]
 dict_arrivals_store_deliveries = args["dict_arrivals_store_deliveries"]
 dict_deliveries_from_warehouse = args["dict_deliveries_from_warehouse"]
 stores_simulation = args["stores_simulation"]
@@ -58,11 +62,11 @@ if step2_fashion_strategy_calculation_task_id != "":
     # json read
     with open(dict_deliveries_from_warehouse_path, 'r') as f:
         dict_deliveries_from_warehouse = json.load(f)
-    print("dict_deliveries_from_warehouse: ", dict_deliveries_from_warehouse)
+    print("dict_deliveries_from_warehouse.keys(): ", dict_deliveries_from_warehouse.keys())
     dict_arrivals_store_deliveries_path = step2_task_artifacts['dict_arrivals_store_deliveries'].get_local_copy()
     with open(dict_arrivals_store_deliveries_path, 'r') as f:
         dict_arrivals_store_deliveries = json.load(f)
-    print("dict_arrivals_store_deliveries: ", dict_arrivals_store_deliveries)
+    print("dict_arrivals_store_deliveries.keys(): ", dict_arrivals_store_deliveries.keys())
     stores_simulation_path = step2_task_artifacts['stores_simulation'].get_local_copy()
     with open(stores_simulation_path, 'rb') as f:
         stores_simulation = pickle.load(f)
@@ -91,6 +95,28 @@ if step2_fashion_strategy_calculation_task_id != "":
     # read as str from txt
     with open(strategy_names_path, 'r') as f:
         strategy_names = f.read()
+
+    # the keys in dict_deliveries_from_warehouse and dict_arrivals_store_deliveries are str dates. i want stay just the keys that are beteen
+    dict_deliveries_from_warehouse = {k: v for k, v in dict_deliveries_from_warehouse.items() if
+                                      k >= start_date and k <= end_date}
+    dict_arrivals_store_deliveries = {k: v for k, v in dict_arrivals_store_deliveries.items() if
+                                      k >= start_date and k <= end_date}
+
+    # in dict_deliveries_from_warehouse and dict_arrivals_store_deliveries after str date keys there is list of sku. i want
+    # delete skus from these lists if they not in relevant_skus_to_this_machine
+
+
+    print("dict_deliveries_from_warehouse2.keys(): ", dict_deliveries_from_warehouse.keys())
+    print("dict_arrivals_store_deliveries2.keys(): ", dict_arrivals_store_deliveries.keys())
+
+
+    def filter_skus(dictionary, relevant_skus):
+        return {date: [str(sku) for sku in skus if str(sku) in relevant_skus] for date, skus in dictionary.items()}
+
+
+    # Filter SKUs for both dictionaries
+    filtered_deliveries_from_warehouse = filter_skus(dict_deliveries_from_warehouse, skus_simulation)
+    filtered_arrivals_store_deliveries = filter_skus(dict_arrivals_store_deliveries, skus_simulation)
 
     print("-----------------------------------Phase 3 - start strategy-----------------------------------")
     main_simulation(dict_arrivals_store_deliveries=dict_arrivals_store_deliveries,

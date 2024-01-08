@@ -24,8 +24,7 @@ controller = PipelineController(project="palmers_fashion",
                                 name=f'palmers_fashion_strategy_pipeline_controller',
                                 docker="palmerscr.azurecr.io/clean/nvidia-cuda_11.0.3-cudnn8-runtime-ubuntu20.04:1.0.1-private",
                                 repo='git@github.com:SDattaAi/sdatta-nlp.git',
-                                repo_branch='oran-branch',
-                                add_pipeline_tags=True)
+                                repo_branch='oran-branch')
 
 
 controller.add_step(name="step1_load_all_relevant_data_for_fashion",
@@ -35,8 +34,7 @@ controller.add_step(name="step1_load_all_relevant_data_for_fashion",
                                         'General/start_date': start_date,
                                         'General/end_date': end_date,
                                         'General/number_of_machines': number_of_machines},
-                    execution_queue="ultra-high-cpu",
-                    cache_executed_step=True)
+                    execution_queue="ultra-high-cpu")
 
 
 fashion_strategy_preparation_dicts_nodes = []
@@ -52,17 +50,17 @@ for number_of_machine in range(number_of_machines):
                                             'General/end_date': end_date,
                                             'General/relevant_stores': relevant_stores,
                                             'General/step1_load_all_relevant_data_for_fashion_task_id': '${step1_load_all_relevant_data_for_fashion.id}'},
-                        execution_queue="ultra-high-cpu",
-                        cache_executed_step=True)
+                        execution_queue="ultra-high-cpu")
     fashion_strategy_preparation_dicts_nodes.append(fashion_strategy_preparation_dicts_node_name)
     fashion_strategy_calculation_node_name = f"step3_fashion_strategy_calculation_{number_of_machine}"
     controller.add_step(name=fashion_strategy_calculation_node_name,
                         base_task_project="palmers_fashion",
                         base_task_name="step3_naive_bayes_fashion_strategy_task",
                         parents=[fashion_strategy_preparation_dicts_node_name],
-                        parameter_override={'General/step2_fashion_strategy_calculation_task_id': '${' + fashion_strategy_preparation_dicts_node_name + '.id}'},
-                        execution_queue="ultra-high-cpu",
-                        cache_executed_step=True)
+                        parameter_override={ 'General/start_date': start_date,
+                                            'General/end_date': end_date,
+                                             'General/step2_fashion_strategy_calculation_task_id': '${' + fashion_strategy_preparation_dicts_node_name + '.id}'},
+                        execution_queue="ultra-high-cpu")
     fashion_strategy_calculation_nodes.append(fashion_strategy_calculation_node_name)
 
 fashion_strategy_calculation_nodes_task_ids = "[" + ", ".join([f"${{{node}.id}}" for node in fashion_strategy_calculation_nodes]) + "]"
@@ -71,6 +69,5 @@ controller.add_step(name="step4_union_fashion_results",
                     base_task_name="step4_union_fashion_results_task",
                     parents=fashion_strategy_calculation_nodes,
                     parameter_override={'General/step3_fashion_strategy_calculation_task_ids': fashion_strategy_calculation_nodes_task_ids},
-                    execution_queue="ultra-high-cpu",
-                    cache_executed_step=True)
+                    execution_queue="ultra-high-cpu")
 controller.start()
