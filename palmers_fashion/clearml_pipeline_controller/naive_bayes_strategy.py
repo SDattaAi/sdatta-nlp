@@ -269,7 +269,7 @@ def update_active_stores(ActiveStores: dict, dict_stocks: dict) -> dict:
 
 def kill_and_save_results(accumulated_stocks: dict, d_wo_inv: dict, d_wo_inv_wo_wh: dict, Ex_i_s_r: dict,
                           avg_integral_diff: dict, Ex_total_days_wo_inv: dict, loose: dict, date: str, end_dates: dict,
-                          MissedSales: dict,
+                          MissedSales: dict, clearml_task=None,
                           base_path: str = r'/Users/guybasson/Desktop/sdatta-nlp/palmers_fashion/clearml_pipeline_controller',
                           simulation_name: str = 'run1', lamda: float = 0.1) -> tuple[
     dict, dict, dict, dict, dict, dict, dict, dict]:
@@ -334,9 +334,13 @@ def kill_and_save_results(accumulated_stocks: dict, d_wo_inv: dict, d_wo_inv_wo_
                     store], avg_integral_diff[sku][store], Ex_total_days_wo_inv[sku][store], MissedSales[store][sku]
         del loose[sku]
     date_ = date.replace("-", "_")
-    file_path = os.path.join(simulation_dir, f'{date_}.pkl')
-    with open(file_path, 'wb') as f:
-        pickle.dump(final_kpi_res, f)
+    #
+    if clearml_task is None:
+        file_path = os.path.join(simulation_dir, f'{date_}.pkl')
+        with open(file_path, 'wb') as f:
+            pickle.dump(final_kpi_res, f)
+    else:
+        clearml_task.upload_artifact('final_kpi_res', artifact_object=final_kpi_res)
 
     print("final_kpi_res: ", final_kpi_res)
     return accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, loose, MissedSales
@@ -485,6 +489,7 @@ def update_info_for_kpi(accumulated_stocks: dict,current_stock: dict, Ex_i_s_r: 
     return Ex_i_s_r, avg_integral_diff
 def main_simulation(dict_deliveries_from_warehouse: dict, dict_arrivals_store_deliveries: dict, stores_simulation: list,
                     skus_simulation: list, dict_sales: dict, dict_stocks: dict, start_dates: dict, end_dates: dict,
+                    task_clearml=None,
                     strategy_names: str = "naive_bayes") -> None:
     """
     This function is the main simulation function by the next steps:
@@ -575,4 +580,4 @@ def main_simulation(dict_deliveries_from_warehouse: dict, dict_arrivals_store_de
         print("date_str: ", date_str)
         accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, loose, MissedSales = kill_and_save_results(
             accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, loose,
-            date_str, end_dates, MissedSales)
+            date_str, end_dates, MissedSales, task_clearml)
