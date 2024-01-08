@@ -9,16 +9,16 @@ task.set_repo(repo='git@github.com:SDattaAi/sdatta-nlp.git', branch='oran-branch
 task.execute_remotely('ultra-high-cpu')
 task.add_tags(['important'])
 args = {
-    "ids_of_task": []
+    "step3_fashion_strategy_calculation_task_ids": []
 }
 task.connect(args)
 print('Arguments: {}'.format(args))
-ids_of_task = args["ids_of_task"]
+step3_fashion_strategy_calculation_task_ids = args["step3_fashion_strategy_calculation_task_ids"]
 final_clean_all_results = {}
 all_results = {}
-for id_of_task in ids_of_task:
-    print("id_of_task", id_of_task)
-    task_id = Task.get_task(task_id=id_of_task)
+for task_id in step3_fashion_strategy_calculation_task_ids:
+    print("id_of_task", task_id)
+    task_id = Task.get_task(task_id=task_id)
     print("task.artifacts", task.artifacts)
     # dict
     print("final_clean_results loading")
