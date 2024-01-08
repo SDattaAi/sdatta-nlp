@@ -272,7 +272,7 @@ def update_active_stores(ActiveStores: dict, dict_stocks: dict) -> dict:
 def kill_and_save_results(accumulated_stocks: dict, d_wo_inv: dict, d_wo_inv_wo_wh: dict, Ex_i_s_r: dict,
                           avg_integral_diff: dict, Ex_total_days_wo_inv: dict, loose: dict, date: str, end_dates: dict,
                           MissedSales: dict,
-                          base_path: str = r'C:\Users\yotam\SDatta\fashion\strategy_benchmark\source_simulation\07_01_2024',
+                          base_path: str = r'/Users/guybasson/Desktop/sdatta-nlp/palmers_fashion/clearml_pipeline_controller',
                           simulation_name: str = 'run1', lamda: float = 0.1) -> tuple[
     dict, dict, dict, dict, dict, dict, dict, dict]:
     """
@@ -329,12 +329,16 @@ def kill_and_save_results(accumulated_stocks: dict, d_wo_inv: dict, d_wo_inv_wo_
                                                    f'missed sales in {sku, store}: {MissedSales[store][sku]}',
                                                    f'accumulated stock in {sku, store}: {accumulated_stocks[store][sku]}'}
 
-                file_path = os.path.join(simulation_dir, f'{sku}_{store}.pkl')
-                with open(file_path, 'wb') as f:
-                    pickle.dump(final_kpi_res[f'{sku}_{store}'], f)
+                # file_path = os.path.join(simulation_dir, f'{sku}_{store}.pkl')
+                # with open(file_path, 'wb') as f:
+                #     pickle.dump(final_kpi_res[f'{sku}_{store}'], f)
                 del accumulated_stocks[store][sku], d_wo_inv[sku][store], d_wo_inv_wo_wh[sku][store], Ex_i_s_r[sku][
                     store], avg_integral_diff[sku][store], Ex_total_days_wo_inv[sku][store], MissedSales[store][sku]
         del loose[sku]
+    date_ = date.replace("-", "_")
+    file_path = os.path.join(simulation_dir, f'{date_}.pkl')
+    with open(file_path, 'wb') as f:
+        pickle.dump(final_kpi_res, f)
     return accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, loose, MissedSales
 
 def extract_last_sale_for_sku(dict_sales: dict,store: str,sku: str,current_date: str) :

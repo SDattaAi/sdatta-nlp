@@ -7,7 +7,14 @@ from datetime import datetime, timedelta
 number_of_machines = 2
 start_date = '2023-12-01'
 end_date = '2023-12-07'
-relevant_stores = ['51', '100']
+relevant_stores = ['76', '4134', '4904', '10', '100', '109', '11', '117', '133', '135', '141', '143', '164', '181'
+    , '183', '185', '201', '213', '214', '22', '3005', '3202', '4104', '4123', '4129', '42', '45', '46', '4803', '4906'
+    , '5', '67', '68', '7', '73', '8', '82', '88', '89', '104', '174', '3208', '37', '63', '91', '96', '202', '21', '90'
+    , '95', '121', '144', '147', '173', '4133', '47', '81', '170', '28', '172', '15', '166', '217', '27', '4', '51'
+    , '114', '122', '160', '3', '69', '182', '26', '105', '106', '119', '130', '136', '149', '150', '156', '159'
+    , '162', '167', '168', '171', '179', '18', '180', '184', '186', '189', '203', '215', '218', '220', '221', '225'
+    , '29', '44', '4805', '50', '52', '55', '56', '61', '64', '74', '79', '84', '85', '99', '152', '163', '175', '216'
+    , '219', '3245', '57', '3205', '43', '226', '35', '36', '123', '188']
 
 # deliver have date from 2018-01-01 to 2023-12-23
 
@@ -58,12 +65,12 @@ for number_of_machine in range(number_of_machines):
                         cache_executed_step=True)
     fashion_strategy_calculation_nodes.append(fashion_strategy_calculation_node_name)
 
-
+fashion_strategy_calculation_nodes_task_ids = "[" + ", ".join([f"${{{node}.id}}" for node in fashion_strategy_calculation_nodes]) + "]"
 controller.add_step(name="step4_union_fashion_results",
                     base_task_project="palmers_fashion",
                     base_task_name="step4_union_fashion_results_task",
                     parents=fashion_strategy_calculation_nodes,
-                    parameter_override={'General/step3_fashion_strategy_calculation_task_ids': fashion_strategy_calculation_nodes},
+                    parameter_override={'General/step3_fashion_strategy_calculation_task_ids': fashion_strategy_calculation_nodes_task_ids},
                     execution_queue="ultra-high-cpu",
                     cache_executed_step=True)
 controller.start()
