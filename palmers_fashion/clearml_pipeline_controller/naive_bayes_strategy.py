@@ -335,9 +335,10 @@ def kill_and_save_results(accumulated_stocks: dict, d_wo_inv: dict, d_wo_inv_wo_
         del loose[sku]
     date_ = date.replace("-", "_")
     file_path = os.path.join(simulation_dir, f'{date_}.pkl')
-    print("file_path: ", file_path)
     with open(file_path, 'wb') as f:
         pickle.dump(final_kpi_res, f)
+
+    print("final_kpi_res: ", final_kpi_res)
     return accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, loose, MissedSales
 
 def extract_last_sale_for_sku(dict_sales: dict,store: str,sku: str,current_date: str) :
@@ -571,6 +572,7 @@ def main_simulation(dict_deliveries_from_warehouse: dict, dict_arrivals_store_de
                                                                                         date_str)
         Ex_i_s_r, avg_integral_diff = update_info_for_kpi(accumulated_stocks, current_stock, Ex_i_s_r,
                                                           avg_integral_diff)
+        print("date_str: ", date_str)
         accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, loose, MissedSales = kill_and_save_results(
             accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, loose,
             date_str, end_dates, MissedSales)
