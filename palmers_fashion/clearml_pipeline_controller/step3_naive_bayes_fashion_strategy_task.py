@@ -25,8 +25,8 @@ args = {
     "end_dates": {},
     "strategy_names": "naive_bayes",
     "step2_fashion_strategy_calculation_task_id": "538dc22a35034b02b3d4d72bed46228d",
-    "start_date": '2023-12-01',
-    "end_date": '2023-12-07',
+    "start_date": '2021-08-01',
+    "end_date":  '2023-12-01',
 }
 print("-----------------------------------Phase 1 - update args-----------------------------------")
 

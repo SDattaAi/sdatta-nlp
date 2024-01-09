@@ -18,6 +18,8 @@ relevant_stores = ['76', '4134', '4904', '10', '100', '109', '11', '117', '133',
 
 # deliver have date from 2018-01-01 to 2023-12-23
 
+# 100060075000001 is sku that have no sales in store 18 but have stock
+
 if 'VZ01' not in relevant_stores:
      relevant_stores.append('VZ01')
 controller = PipelineController(project="palmers_fashion",
