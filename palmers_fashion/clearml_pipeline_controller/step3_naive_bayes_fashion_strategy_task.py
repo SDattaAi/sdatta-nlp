@@ -3,14 +3,14 @@ import pickle
 
 from clearml import Task
 
-from naive_bayes_strategy import main_simulation
+from sdatta_learn.fashion_strategy.simulation.naive_bayes_benchmark.simulation_with_benchmark import main_simulation
 
 Task.add_requirements("requirements.txt")
 task = Task.init(project_name="palmers_fashion", task_name="step3_naive_bayes_fashion_strategy_task")
 task.set_base_docker("palmerscr.azurecr.io/clean/ubuntu22.04-private-pip:1.0.2")
 task.set_user_properties()
 task.set_repo(repo='git@github.com:SDattaAi/sdatta-nlp.git', branch='oran-branch')
-task.execute_remotely('ultra-high-cpu')
+#task.execute_remotely('ultra-high-cpu')
 task.add_tags(['todelete'])
 
 
@@ -117,14 +117,15 @@ if step2_fashion_strategy_calculation_task_id != "":
     print("-----------------------------------Phase 3 - start strategy-----------------------------------")
     main_simulation(dict_arrivals_store_deliveries=dict_arrivals_store_deliveries,
                     dict_deliveries_from_warehouse=dict_deliveries_from_warehouse,
-                    stores_simulation=stores_simulation,
                     skus_simulation=skus_simulation,
                     dict_sales=dict_sales,
                     dict_stocks=dict_stocks,
                     start_dates=start_dates,
                     end_dates=end_dates,
-                    strategy_names=strategy_names,
-                    task_clearml=task)
+                    task_clearml=task,
+                    base_path="",)
+
+
 
 
 
