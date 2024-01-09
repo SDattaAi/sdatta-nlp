@@ -62,8 +62,8 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     print("relevant_stores:", relevant_stores)
     print("number_of_this_machine:", number_of_this_machine)
 
-  #  relevant_skus_to_this_machine = list_intersection_skus[indexes_tuple_list[number_of_this_machine][0]:indexes_tuple_list[number_of_this_machine][1]][:1]
-    relevant_skus_to_this_machine = ['100060075000001']
+    relevant_skus_to_this_machine = list_intersection_skus[indexes_tuple_list[number_of_this_machine][0]:indexes_tuple_list[number_of_this_machine][1]][:10]
+   # relevant_skus_to_this_machine = ['100060075000001']
     print("relevant_skus_to_this_machine:", relevant_skus_to_this_machine)
 
     print("-----------------------------------Phase 1 - take artifacts from task1-----------------------------------")

@@ -357,7 +357,10 @@ def extract_last_sale_for_sku(dict_sales: dict,store: str,sku: str,current_date:
     -------
     return: last_date, sku
     """
+    if store not in dict_sales:
+        return None
     for date in dict_sales[store].keys():
+
         if current_date <= date:
             continue
         for sale in dict_sales[store][date]:

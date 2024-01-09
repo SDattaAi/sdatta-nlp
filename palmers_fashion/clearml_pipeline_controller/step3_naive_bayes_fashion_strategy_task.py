@@ -10,7 +10,7 @@ task = Task.init(project_name="palmers_fashion", task_name="step3_naive_bayes_fa
 task.set_base_docker("palmerscr.azurecr.io/clean/ubuntu22.04-private-pip:1.0.2")
 task.set_user_properties()
 task.set_repo(repo='git@github.com:SDattaAi/sdatta-nlp.git', branch='oran-branch')
-#task.execute_remotely('ultra-high-cpu')
+task.execute_remotely('ultra-high-cpu')
 task.add_tags(['todelete'])
 
 
@@ -51,15 +51,6 @@ if step2_fashion_strategy_calculation_task_id != "":
     print("step2_fashion_strategy_calculation_task_id: ", step2_fashion_strategy_calculation_task_id)
     step2_task = Task.get_task(task_id=step2_fashion_strategy_calculation_task_id)
     step2_task_artifacts = step2_task.artifacts
-    # task.upload_artifact('dict_deliveries_from_warehouse', artifact_object=dict_deliveries_from_warehouse)
-    # task.upload_artifact('dict_arrivals_store_deliveries', artifact_object=dict_arrivals_store_deliveries)
-    # task.upload_artifact('stores_simulation', artifact_object=stores_simulation)
-    # task.upload_artifact('skus_simulation', artifact_object=skus_simulation)
-    # task.upload_artifact('dict_sales', artifact_object=dict_sales)
-    # task.upload_artifact('dict_stocks', artifact_object=dict_stocks)
-    # task.upload_artifact('start_dates', artifact_object=start_dates)
-    # task.upload_artifact('end_dates', artifact_object=end_dates)
-    # task.upload_artifact('strategy_names', artifact_object=strategy_names)
     dict_deliveries_from_warehouse_path = step2_task_artifacts['dict_deliveries_from_warehouse'].get_local_copy()
     # json read
     with open(dict_deliveries_from_warehouse_path, 'r') as f:
