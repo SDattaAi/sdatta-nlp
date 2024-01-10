@@ -15,15 +15,15 @@ task.add_tags(['todelete'])
 
 print("-----------------------------------Phase 0 - Update Arguments-----------------------------------")
 args = {
-    "number_of_this_machine": 0,
+    "number_of_this_machine": 1,
     'f_sales_v_fashion': pd.DataFrame(),
     'initial_stock_sku_store': pd.DataFrame(),
     'list_intersection_skus': ['100537293000001', '100539815000003'],
     'indexes_tuple_list': [(0, 1), (1, 2)],
-    'step1_load_all_relevant_data_for_fashion_task_id': '8d1a774f627f4f718c4b63370f54f0ee',
+    'step1_load_all_relevant_data_for_fashion_task_id': 'a1913838eacb4ba99bd6039003acf6cf',
     'relevant_stores': ['51', 'VZ01'],
-    "start_date": "2020-01-01",
-    "end_date": "2020-02-28"
+    'start_date' : '2021-08-01',
+    'end_date' : '2023-12-01'
 }
 
 task.connect(args)
@@ -62,7 +62,7 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     print("relevant_stores:", relevant_stores)
     print("number_of_this_machine:", number_of_this_machine)
 
-    relevant_skus_to_this_machine = list_intersection_skus[indexes_tuple_list[number_of_this_machine][0]:indexes_tuple_list[number_of_this_machine][1]][:100]
+    relevant_skus_to_this_machine = list_intersection_skus[indexes_tuple_list[number_of_this_machine][0]:indexes_tuple_list[number_of_this_machine][1]][:1000]
    # relevant_skus_to_this_machine = ['100060075000001']
     print("relevant_skus_to_this_machine:", relevant_skus_to_this_machine)
 
@@ -188,28 +188,34 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     def parse_date(date_str):
         return datetime.strptime(date_str, '%Y-%m-%d')
 
+    def create_fix_start_dates(start_dates, end_dates):
+        # Convert string dates to datetime objects for comparison
 
-    # Create a dictionary to map each SKU to its earliest end date
-    sku_end_dates = {}
-    for end_date_str, skus in end_dates.items():
-        end_date = parse_date(end_date_str)
-        for sku in skus:
-            if sku not in sku_end_dates or end_date < sku_end_dates[sku]:
-                sku_end_dates[sku] = end_date
+        # Create a dictionary to map each SKU to its earliest end date
+        sku_end_dates = {}
+        for end_date_str, skus in end_dates.items():
+            end_date = parse_date(end_date_str)
+            for sku in skus:
+                if sku not in sku_end_dates or end_date < sku_end_dates[sku]:
+                    sku_end_dates[sku] = end_date
 
-    # Iterate through each date in start_dates and remove SKUs with earlier end dates
-    for start_date_str, sku_store_pairs in list(start_dates.items()):  # Use list() to avoid RuntimeError
-        start_date = parse_date(start_date_str)
+        # Iterate through each date in start_dates and remove SKUs with earlier end dates
+        for start_date_str, sku_store_pairs in list(start_dates.items()):  # Use list() to avoid RuntimeError
+            start_date = parse_date(start_date_str)
 
-        # Iterate through each SKU-store pair
-        for sku_store_pair in list(sku_store_pairs):  # Use list() to avoid RuntimeError
-            sku = sku_store_pair[0]
-            if sku in sku_end_dates and start_date > sku_end_dates[sku]:
-                sku_store_pairs.remove(sku_store_pair)
+            # Iterate through each SKU-store pair
+            for sku_store_pair in list(sku_store_pairs):  # Use list() to avoid RuntimeError
+                sku = sku_store_pair[0]
+                if sku in sku_end_dates and start_date > sku_end_dates[sku]:
+                    sku_store_pairs.remove(sku_store_pair)
 
-        # If no pairs left for the date, remove the date from start_dates
-        if not sku_store_pairs:
-            del start_dates[start_date_str]
+            # If no pairs left for the date, remove the date from start_dates
+            if not sku_store_pairs:
+                del start_dates[start_date_str]
+
+        return start_dates
+
+    start_dates = create_fix_start_dates(start_dates, end_dates)
 
 
     strategy_names = "naive_bayes"
@@ -232,7 +238,6 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     # upload json
     task.upload_artifact('dict_deliveries_from_warehouse', artifact_object=dict_deliveries_from_warehouse)
     task.upload_artifact('dict_arrivals_store_deliveries', artifact_object=dict_arrivals_store_deliveries)
-    task.upload_artifact('stores_simulation', artifact_object=stores_simulation)
     task.upload_artifact('skus_simulation', artifact_object=skus_simulation)
     task.upload_artifact('dict_sales', artifact_object=dict_sales)
     task.upload_artifact('dict_stocks', artifact_object=dict_stocks)

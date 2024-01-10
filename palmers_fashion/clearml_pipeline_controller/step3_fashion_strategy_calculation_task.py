@@ -24,7 +24,7 @@ args = {
     "start_dates": {},
     "end_dates": {},
     "strategy_names": "naive_bayes",
-    "step2_fashion_strategy_calculation_task_id": "b271e72860c1489ea5a5491052f618c5",
+    "step2_fashion_strategy_calculation_task_id": "e14df6dfa23b44d69c824007dcb78812",
     "start_date": '2021-08-01',
     "end_date":  '2023-12-01',
 }
@@ -58,9 +58,6 @@ if step2_fashion_strategy_calculation_task_id != "":
     dict_arrivals_store_deliveries_path = step2_task_artifacts['dict_arrivals_store_deliveries'].get_local_copy()
     with open(dict_arrivals_store_deliveries_path, 'r') as f:
         dict_arrivals_store_deliveries = json.load(f)
-    stores_simulation_path = step2_task_artifacts['stores_simulation'].get_local_copy()
-    with open(stores_simulation_path, 'rb') as f:
-        stores_simulation = pickle.load(f)
     skus_simulation_path = step2_task_artifacts['skus_simulation'].get_local_copy()
     with open(skus_simulation_path, 'rb') as f:
         skus_simulation = pickle.load(f)
@@ -116,14 +113,14 @@ if step2_fashion_strategy_calculation_task_id != "":
 
     print("-----------------------------------Phase 3 - start strategy-----------------------------------")
     main_simulation_benchmark(dict_arrivals_store_deliveries=dict_arrivals_store_deliveries,
-                    dict_deliveries_from_warehouse=dict_deliveries_from_warehouse,
-                    skus_simulation=skus_simulation,
-                    dict_sales=dict_sales,
-                    dict_stocks=dict_stocks,
-                    start_dates=start_dates,
-                    end_dates=end_dates,
-                    clearml_task=task,
-                    base_path="")
+                                dict_deliveries_from_warehouse=dict_deliveries_from_warehouse,
+                                skus_simulation=skus_simulation,
+                                dict_sales=dict_sales,
+                                dict_stocks=dict_stocks,
+                                start_dates=start_dates,
+                                end_dates=end_dates,
+                                clearml_task=task,
+                                base_path="")
 
 
 

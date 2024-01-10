@@ -4,7 +4,7 @@
 from clearml.automation import PipelineController
 from datetime import datetime, timedelta
 
-number_of_machines = 2
+number_of_machines = 4
 start_date = '2021-08-01'
 end_date = '2023-12-01'
 relevant_stores = ['76', '4134', '4904', '10', '100', '109', '11', '117', '133', '135', '141', '143', '164', '181'
