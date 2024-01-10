@@ -122,8 +122,8 @@ if step2_fashion_strategy_calculation_task_id != "":
                     dict_stocks=dict_stocks,
                     start_dates=start_dates,
                     end_dates=end_dates,
-                    clearml_task=None,
-                    base_path="",)
+                    clearml_task=task,
+                    base_path="")
 
 
 
