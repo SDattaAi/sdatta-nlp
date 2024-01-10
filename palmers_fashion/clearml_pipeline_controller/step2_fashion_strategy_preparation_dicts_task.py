@@ -3,6 +3,7 @@ import pickle
 
 import pandas as pd
 from clearml import Task
+from datetime import datetime
 
 Task.add_requirements('requirements.txt')
 task = Task.init(project_name="palmers_fashion", task_name="step2_fashion_strategy_preparation_dicts_task")
@@ -181,7 +182,34 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
 
 
 
+    print(" fix start_dates")
 
+
+    def parse_date(date_str):
+        return datetime.strptime(date_str, '%Y-%m-%d')
+
+
+    # Create a dictionary to map each SKU to its earliest end date
+    sku_end_dates = {}
+    for end_date_str, skus in end_dates.items():
+        end_date = parse_date(end_date_str)
+        for sku in skus:
+            if sku not in sku_end_dates or end_date < sku_end_dates[sku]:
+                sku_end_dates[sku] = end_date
+
+    # Iterate through each date in start_dates and remove SKUs with earlier end dates
+    for start_date_str, sku_store_pairs in list(start_dates.items()):  # Use list() to avoid RuntimeError
+        start_date = parse_date(start_date_str)
+
+        # Iterate through each SKU-store pair
+        for sku_store_pair in list(sku_store_pairs):  # Use list() to avoid RuntimeError
+            sku = sku_store_pair[0]
+            if sku in sku_end_dates and start_date > sku_end_dates[sku]:
+                sku_store_pairs.remove(sku_store_pair)
+
+        # If no pairs left for the date, remove the date from start_dates
+        if not sku_store_pairs:
+            del start_dates[start_date_str]
 
 
     strategy_names = "naive_bayes"
