@@ -57,7 +57,7 @@ for number_of_machine in range(number_of_machines):
     fashion_strategy_calculation_node_name = f"step3_fashion_strategy_calculation_{number_of_machine}"
     controller.add_step(name=fashion_strategy_calculation_node_name,
                         base_task_project="palmers_fashion",
-                        base_task_name="step3_naive_bayes_fashion_strategy_task",
+                        base_task_name="step3_fashion_strategy_calculation_task",
                         parents=[fashion_strategy_preparation_dicts_node_name],
                         parameter_override={ 'General/start_date': start_date,
                                             'General/end_date': end_date,
@@ -70,6 +70,8 @@ controller.add_step(name="step4_union_fashion_results",
                     base_task_project="palmers_fashion",
                     base_task_name="step4_union_fashion_results_task",
                     parents=fashion_strategy_calculation_nodes,
-                    parameter_override={'General/step3_fashion_strategy_calculation_task_ids': fashion_strategy_calculation_nodes_task_ids},
+                    parameter_override={'General/step3_fashion_strategy_calculation_task_ids': fashion_strategy_calculation_nodes_task_ids,
+                                        'General/start_date': start_date,
+                                        'General/end_date': end_date,},
                     execution_queue="ultra-high-cpu")
 controller.start()

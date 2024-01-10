@@ -54,7 +54,6 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     with open(indexes_tuple_list_path, 'rb') as pickle_file:
         indexes_tuple_list = pickle.load(pickle_file)
     print("indexes_tuple_list loaded")
-
     print("f_sales_v_fashion:", f_sales_v_fashion)
     print("initial_stock_sku_store:", initial_stock_sku_store)
     print("list_intersection_skus:", list_intersection_skus)
@@ -62,7 +61,7 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     print("relevant_stores:", relevant_stores)
     print("number_of_this_machine:", number_of_this_machine)
 
-    relevant_skus_to_this_machine = list_intersection_skus[indexes_tuple_list[number_of_this_machine][0]:indexes_tuple_list[number_of_this_machine][1]][:10]
+    relevant_skus_to_this_machine = list_intersection_skus[indexes_tuple_list[number_of_this_machine][0]:indexes_tuple_list[number_of_this_machine][1]][:100]
    # relevant_skus_to_this_machine = ['100060075000001']
     print("relevant_skus_to_this_machine:", relevant_skus_to_this_machine)
 
