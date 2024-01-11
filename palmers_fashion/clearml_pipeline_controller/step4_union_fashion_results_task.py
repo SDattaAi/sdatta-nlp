@@ -1,7 +1,7 @@
 import pandas as pd
 from clearml import Task
 from datetime import datetime, timedelta
-import pickle
+import json
 
 
 Task.add_requirements("requirements.txt")
@@ -9,10 +9,10 @@ task = Task.init(project_name="palmers_fashion", task_name="step4_union_fashion_
 task.set_base_docker("palmerscr.azurecr.io/clean/ubuntu22.04-private-pip:1.0.2")
 task.set_user_properties()
 task.set_repo(repo='git@github.com:SDattaAi/sdatta-nlp.git', branch='oran-branch')
-#task.execute_remotely('ultra-high-cpu')
+task.execute_remotely('ultra-high-cpu')
 task.add_tags(['important'])
 args = {
-    "step3_fashion_strategy_calculation_task_ids": ['60fcd9e8513b476d88a8e20e6a010129', '4fc67d8c2fb344438b93e3766f01a789'],
+    "step3_fashion_strategy_calculation_task_ids": [],
     "start_date": '2021-08-01',
     "end_date":  '2023-12-01',
 }
@@ -41,8 +41,9 @@ for task_id in step3_fashion_strategy_calculation_task_ids:
             if date_ in key:
                 # Code to read the pickle file and update for this date
                 artifact = task.artifacts[key].get_local_copy()
-                with open(artifact, 'rb') as f:
-                    data = pickle.load(f)
+                # read as json
+                with open(artifact, 'r') as f:
+                    data = json.load(f)
                     if current_date_str not in final_all_results:
                         final_all_results[current_date_str] = data
                     else:
@@ -55,8 +56,7 @@ for task_id in step3_fashion_strategy_calculation_task_ids:
         current_date += timedelta(days=1)  # Move to the next date
 
 
-print("final_all_results", final_all_results)
 print("-----------------------------------Phase 3 - upload final artifacts-----------------------------------")
-
-# task.upload_artifact("final_clean_all_results_df", final_clean_all_results_df, wait_on_upload=True)
+print("final_all_results uploaded")
+task.upload_artifact("final_all_results", final_all_results, wait_on_upload=True)
 
