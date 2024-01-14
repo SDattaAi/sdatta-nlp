@@ -10,7 +10,7 @@ task = Task.init(project_name="palmers_fashion", task_name="step3_fashion_strate
 task.set_base_docker("palmerscr.azurecr.io/clean/ubuntu22.04-private-pip:1.0.2")
 task.set_user_properties()
 task.set_repo(repo='git@github.com:SDattaAi/sdatta-nlp.git', branch='oran-branch')
-#task.execute_remotely('ultra-high-cpu')
+task.execute_remotely('ultra-high-cpu')
 task.add_tags(['todelete'])
 
 
@@ -24,7 +24,7 @@ args = {
     "start_dates": {},
     "end_dates": {},
     "strategy_names": "naive_bayes",
-    "step2_fashion_strategy_calculation_task_id": "e14df6dfa23b44d69c824007dcb78812",
+    "step2_fashion_strategy_calculation_task_id": "675b37f7a8ed4f62bed5252519bdc784",
     "start_date": '2021-08-01',
     "end_date":  '2023-12-01',
 }
@@ -112,22 +112,21 @@ if step2_fashion_strategy_calculation_task_id != "":
 
 
     print("-----------------------------------Phase 3 - start strategy-----------------------------------")
-    main_simulation_benchmark(dict_arrivals_store_deliveries=dict_arrivals_store_deliveries,
+    all_results = main_simulation_benchmark(dict_arrivals_store_deliveries=dict_arrivals_store_deliveries,
                                 dict_deliveries_from_warehouse=dict_deliveries_from_warehouse,
                                 skus_simulation=skus_simulation,
                                 dict_sales=dict_sales,
                                 dict_stocks=dict_stocks,
                                 start_dates=start_dates,
-                                end_dates=end_dates,
-                                clearml_task=None,
-                                base_path="")
-
+                                end_dates=end_dates)
+    print("all_results: ", all_results)
 
 
 
 
 
     print("-----------------------------------Phase 4 - upload final artifacts-----------------------------------")
+    task.upload_artifact("all_results", artifact_object=all_results)
 
 
 

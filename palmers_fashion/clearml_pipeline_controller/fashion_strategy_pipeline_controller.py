@@ -2,9 +2,8 @@
 
 
 from clearml.automation import PipelineController
-from datetime import datetime, timedelta
 
-number_of_machines = 4
+number_of_machines = 2
 start_date = '2021-08-01'
 end_date = '2023-12-01'
 relevant_stores = ['76', '4134', '4904', '10', '100', '109', '11', '117', '133', '135', '141', '143', '164', '181'
@@ -16,9 +15,6 @@ relevant_stores = ['76', '4134', '4904', '10', '100', '109', '11', '117', '133',
     , '29', '44', '4805', '50', '52', '55', '56', '61', '64', '74', '79', '84', '85', '99', '152', '163', '175', '216'
     , '219', '3245', '57', '3205', '43', '226', '35', '36', '123', '188']
 
-# deliver have date from 2018-01-01 to 2023-12-23
-
-# 100060075000001 is sku that have no sales in store 18 but have stock
 
 if 'VZ01' not in relevant_stores:
      relevant_stores.append('VZ01')

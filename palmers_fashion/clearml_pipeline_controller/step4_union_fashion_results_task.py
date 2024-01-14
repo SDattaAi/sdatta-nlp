@@ -23,40 +23,29 @@ end_date = args["end_date"]
 step3_fashion_strategy_calculation_task_ids = args["step3_fashion_strategy_calculation_task_ids"]
 final_all_results = {}
 all_results = {}
+start_date_dt = pd.to_datetime(start_date)
+end_date_dt = pd.to_datetime(end_date)
+all_results_all_tasks = {}
 for task_id in step3_fashion_strategy_calculation_task_ids:
     print("id_of_task", task_id)
 
     # Get the task object
-    task = Task.get_task(task_id=task_id)
+    all_results_path = Task.get_task(task_id=task_id).artifacts['all_results'].get_local_copy()
+    with open(all_results_path, 'r') as f:
+        all_results = json.load(f)
+    for date in all_results:
+        print("date:", date)
+        if date in all_results:
+            if date not in all_results_all_tasks:
+                all_results_all_tasks[date] = {}
+            all_results_all_tasks[date].update(all_results[date].copy())
 
-    # Iterating through each date
-    current_date = start_date
-    while pd.to_datetime(current_date) <= pd.to_datetime(end_date):
-        print("date:", current_date)
-        current_date = pd.to_datetime(current_date)
-        date_ = current_date.strftime("%Y-%m-%d").replace("-", "_")
-        current_date_str = current_date.strftime("%Y-%m-%d")
-        # Check if date_ is contained in any of the artifact keys
-        for key in task.artifacts.keys():
-            if date_ in key:
-                # Code to read the pickle file and update for this date
-                artifact = task.artifacts[key].get_local_copy()
-                # read as json
-                with open(artifact, 'r') as f:
-                    data = json.load(f)
-                    if current_date_str not in final_all_results:
-                        final_all_results[current_date_str] = data
-                    else:
-                        final_all_results[current_date_str].update(data)
-                break  # Break the loop once the matching artifact is found
 
-        if current_date_str not in final_all_results:
-            final_all_results[current_date_str] = {}
 
-        current_date += timedelta(days=1)  # Move to the next date
+
 
 
 print("-----------------------------------Phase 3 - upload final artifacts-----------------------------------")
-print("final_all_results uploaded")
-task.upload_artifact("final_all_results", final_all_results, wait_on_upload=True)
+print("all_results_all_tasks", all_results_all_tasks)
+task.upload_artifact("all_results_all_tasks", all_results_all_tasks, wait_on_upload=True)
 
