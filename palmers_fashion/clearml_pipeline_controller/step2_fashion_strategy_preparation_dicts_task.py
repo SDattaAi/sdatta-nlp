@@ -20,7 +20,7 @@ args = {
     'initial_stock_sku_store': pd.DataFrame(),
     'list_intersection_skus': ['100537293000001', '100539815000003'],
     'indexes_tuple_list': [(0, 1), (1, 2)],
-    'step1_load_all_relevant_data_for_fashion_task_id': 'a1913838eacb4ba99bd6039003acf6cf',
+    'step1_load_all_relevant_data_for_fashion_task_id': '',
     'relevant_stores': ['51', 'VZ01'],
     'start_date' : '2021-08-01',
     'end_date' : '2023-12-01'
@@ -62,7 +62,7 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     print("relevant_stores:", relevant_stores)
     print("number_of_this_machine:", number_of_this_machine)
 
-    relevant_skus_to_this_machine = list_intersection_skus[indexes_tuple_list[number_of_this_machine][0]:indexes_tuple_list[number_of_this_machine][1]][:1000]
+    relevant_skus_to_this_machine = list_intersection_skus[indexes_tuple_list[number_of_this_machine][0]:indexes_tuple_list[number_of_this_machine][1]][:2000]
    # relevant_skus_to_this_machine = ['100060075000001']
     print("relevant_skus_to_this_machine:", relevant_skus_to_this_machine)
 
