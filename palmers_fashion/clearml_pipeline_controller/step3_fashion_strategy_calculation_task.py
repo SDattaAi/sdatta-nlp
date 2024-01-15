@@ -1,18 +1,17 @@
 import json
 import pickle
-
+from datetime import datetime
 from clearml import Task
-
-from sdatta_learn.fashion_strategy.simulation.naive_bayes_benchmark.simulation_with_benchmark import main_simulation_benchmark
+from sdatta_learn.fashion_strategy.simulation.simulation_general import main_simulation, apply_strategy_opt_sw_avg, \
+    apply_strategy_naive_bayes
 
 Task.add_requirements("requirements.txt")
 task = Task.init(project_name="palmers_fashion", task_name="step3_fashion_strategy_calculation_task")
 task.set_base_docker("palmerscr.azurecr.io/clean/ubuntu22.04-private-pip:1.0.2")
 task.set_user_properties()
 task.set_repo(repo='git@github.com:SDattaAi/sdatta-nlp.git', branch='oran-branch')
-task.execute_remotely('ultra-high-cpu')
+# task.execute_remotely('ultra-high-cpu')
 task.add_tags(['todelete'])
-
 
 args = {
     "dict_arrivals_store_deliveries": {},
@@ -26,7 +25,7 @@ args = {
     "strategy_names": "naive_bayes",
     "step2_fashion_strategy_calculation_task_id": "675b37f7a8ed4f62bed5252519bdc784",
     "start_date": '2021-08-01',
-    "end_date":  '2023-12-01',
+    "end_date": '2023-12-01',
 }
 print("-----------------------------------Phase 1 - update args-----------------------------------")
 
@@ -88,7 +87,6 @@ if step2_fashion_strategy_calculation_task_id != "":
     # in dict_deliveries_from_warehouse and dict_arrivals_store_deliveries after str date keys there is list of sku. i want
     # delete skus from these lists if they not in relevant_skus_to_this_machine
 
-
     print("dict_deliveries_from_warehouse2.keys(): ", dict_deliveries_from_warehouse.keys())
     print("dict_arrivals_store_deliveries2.keys(): ", dict_arrivals_store_deliveries.keys())
 
@@ -100,35 +98,146 @@ if step2_fashion_strategy_calculation_task_id != "":
     # Filter SKUs for both dictionaries
     filtered_deliveries_from_warehouse = filter_skus(dict_deliveries_from_warehouse, skus_simulation)
     filtered_arrivals_store_deliveries = filter_skus(dict_arrivals_store_deliveries, skus_simulation)
-    print("dict_arrivals_store_deliveries: ", dict_arrivals_store_deliveries)
-    print("dict_deliveries_from_warehouse: ", dict_deliveries_from_warehouse)
-    print("stores_simulation: ", stores_simulation)
-    print("skus_simulation: ", skus_simulation)
-    print("dict_sales: ", dict_sales)
-    print("dict_stocks: ", dict_stocks)
-    print("start_dates: ", start_dates)
-    print("end_dates: ", end_dates)
-    print("strategy_names: ", strategy_names)
+    print("-----------------------------------Phase 3 - tests for inputs dicts-----------------------------------")
 
 
-    print("-----------------------------------Phase 3 - start strategy-----------------------------------")
-    all_results = main_simulation_benchmark(dict_arrivals_store_deliveries=dict_arrivals_store_deliveries,
-                                dict_deliveries_from_warehouse=dict_deliveries_from_warehouse,
-                                skus_simulation=skus_simulation,
-                                dict_sales=dict_sales,
-                                dict_stocks=dict_stocks,
-                                start_dates=start_dates,
-                                end_dates=end_dates)
-    print("all_results: ", all_results)
+    def validate_stock_zero_for_VZ01(dict_stocks):
+        if 'VZ01' in dict_stocks:
+            for sku, stock in dict_stocks['VZ01'].items():
+                if stock == 0:
+                    return False
+        return True
 
 
+    def validate_positive_stocks(dict_stocks):
+        for store, skus in dict_stocks.items():
+            if any(stock < 0 for stock in skus.values()):
+                return False
+        return True
 
 
+    def validate_start_end_dates(start_dates, end_dates):
+        for date, sku_store_pairs in start_dates.items():
+            start_date = datetime.strptime(date, '%Y-%m-%d')
+            for sku, store in sku_store_pairs:
+                end_date_str = next((d for d in end_dates if sku in end_dates[d]), None)
+                if end_date_str:
+                    end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+                    if start_date > end_date:
+                        return False
+        return True
 
-    print("-----------------------------------Phase 4 - upload final artifacts-----------------------------------")
-    task.upload_artifact("all_results", artifact_object=all_results)
+
+    def validate_store_sku_identifiers(dict_stocks, dict_sales):
+        valid_stores = set(dict_stocks.keys())
+        valid_skus = {sku for store_skus in dict_stocks.values() for sku in store_skus.keys()}
+
+        for store, sales_data in dict_sales.items():
+            if store not in valid_stores:
+                return False
+            for date, sales in sales_data.items():
+                for sku, _ in sales:
+                    if sku not in valid_skus:
+                        return False
+        return True
 
 
+    def validate_sales_date_format(dict_sales):
+        for store, sales_data in dict_sales.items():
+            for date in sales_data.keys():
+                try:
+                    datetime.strptime(date, '%Y-%m-%d')
+                except ValueError:
+                    return False
+        return True
+
+
+    def validate_sku_availability(dict_stocks, dict_sales):
+        for store, sales_data in dict_sales.items():
+            for date, sales in sales_data.items():
+                for sku, _ in sales:
+                    if not any(sku in stock_dict and stock_dict[sku] > 0 for stock_dict in dict_stocks.values()):
+                        return False
+        return True
+
+
+    def validate_sales_dates_within_simulation_period(dict_sales, start_date, end_date):
+        start = datetime.strptime(start_date, '%Y-%m-%d')
+        end = datetime.strptime(end_date, '%Y-%m-%d')
+        for store, sales_data in dict_sales.items():
+            for date in sales_data:
+                current_date = datetime.strptime(date, '%Y-%m-%d')
+                if current_date < start or current_date > end:
+                    return False
+        return True
+
+
+    def validate_non_empty_inputs(dict_stocks, dict_sales):
+        return bool(dict_stocks) and bool(dict_sales)
+
+
+    def validate_warehouse_delivery_dates_and_stores(dict_deliveries_from_warehouse):
+        for date, stores in dict_deliveries_from_warehouse.items():
+            try:
+                datetime.strptime(date, '%Y-%m-%d')
+            except ValueError:
+                return False  # Invalid date format
+        return True
+
+
+    def validate_store_delivery_dates_and_stores(dict_arrivals_store_deliveries):
+        for date, stores in dict_arrivals_store_deliveries.items():
+            try:
+                datetime.strptime(date, '%Y-%m-%d')
+            except ValueError:
+                return False  # Invalid date format
+        return True
+
+
+    def validate_non_empty_deliveries(dict_deliveries_from_warehouse, dict_arrivals_store_deliveries):
+        return bool(dict_deliveries_from_warehouse) and bool(dict_arrivals_store_deliveries)
+
+
+    validate_stock_zero_for_VZ01_result = validate_stock_zero_for_VZ01(dict_stocks)
+    validate_positive_stocks_result = validate_positive_stocks(dict_stocks)
+    validate_start_end_dates_result = validate_start_end_dates(start_dates, end_dates)
+    validate_store_sku_identifiers_result = validate_store_sku_identifiers(dict_stocks, dict_sales)
+    validate_sales_date_format_result = validate_sales_date_format(dict_sales)
+    validate_sku_availability_result = validate_sku_availability(dict_stocks, dict_sales)
+    validate_sales_dates_within_simulation_period_result = validate_sales_dates_within_simulation_period(dict_sales,
+                                                                                                         start_date,
+                                                                                                         end_date)
+    validate_non_empty_inputs_result = validate_non_empty_inputs(dict_stocks, dict_sales)
+    validate_warehouse_delivery_dates_and_stores_result = validate_warehouse_delivery_dates_and_stores(
+        dict_deliveries_from_warehouse)
+    validate_store_delivery_dates_and_stores_result = validate_store_delivery_dates_and_stores(
+        dict_arrivals_store_deliveries)
+    validate_non_empty_deliveries_result = validate_non_empty_deliveries(dict_deliveries_from_warehouse,
+                                                                         dict_arrivals_store_deliveries)
+
+    print("validate_stock_zero_for_VZ01_result: ", validate_stock_zero_for_VZ01_result)
+    print("validate_positive_stocks_result: ", validate_positive_stocks_result)
+    print("validate_start_end_dates_result: ", validate_start_end_dates_result)
+    print("validate_store_sku_identifiers_result: ", validate_store_sku_identifiers_result)
+    print("validate_sales_date_format_result: ", validate_sales_date_format_result)
+    print("validate_sku_availability_result: ", validate_sku_availability_result)
+    print("validate_sales_dates_within_simulation_period_result: ",
+          validate_sales_dates_within_simulation_period_result)
+    print("validate_non_empty_inputs_result: ", validate_non_empty_inputs_result)
+    print("validate_warehouse_delivery_dates_and_stores_result: ", validate_warehouse_delivery_dates_and_stores_result)
+    print("validate_store_delivery_dates_and_stores_result: ", validate_store_delivery_dates_and_stores_result)
+    print("validate_non_empty_deliveries_result: ", validate_non_empty_deliveries_result)
+
+    print("-----------------------------------Phase 4 - start strategy-----------------------------------")
+    all_results_naive_bayes = main_simulation(dict_deliveries_from_warehouse=dict_deliveries_from_warehouse,
+                    dict_arrivals_store_deliveries=dict_arrivals_store_deliveries,
+                    skus_simulation=skus_simulation, dict_sales=dict_sales, dict_stocks=dict_stocks,
+                    start_dates=start_dates, end_dates=end_dates
+                    , strategy_function=apply_strategy_naive_bayes)
+    print("all_results_naive_bayes: ", all_results_naive_bayes)
+
+    print("-----------------------------------Phase 5 - upload final artifacts-----------------------------------")
+    task.upload_artifact("all_results_naive_bayes", artifact_object=all_results_naive_bayes)
 
 else:
     print("step2_fashion_strategy_calculation_task_id is empty, empty task")

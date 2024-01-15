@@ -62,7 +62,7 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     print("relevant_stores:", relevant_stores)
     print("number_of_this_machine:", number_of_this_machine)
 
-    relevant_skus_to_this_machine = list_intersection_skus[indexes_tuple_list[number_of_this_machine][0]:indexes_tuple_list[number_of_this_machine][1]][:2000]
+    relevant_skus_to_this_machine = list_intersection_skus[indexes_tuple_list[number_of_this_machine][0]:indexes_tuple_list[number_of_this_machine][1]]
    # relevant_skus_to_this_machine = ['100060075000001']
     print("relevant_skus_to_this_machine:", relevant_skus_to_this_machine)
 
@@ -78,6 +78,7 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     print("-----------------------------------Phase 2 - create dicts for calculations-----------------------------------")
     # dict_sales : dict
     #     dict_sales[store][date] = [(sku, amount), ...]
+    print("dict_sales")
     dict_sales = {}
     for store in f_sales_v_fashion['store'].unique():
         store_data = f_sales_v_fashion[f_sales_v_fashion['store'] == store]
@@ -92,10 +93,8 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
 
 
 
-    # dict_stocks: dict
-    #     dict_stocks[store][sku] = amount
-    # if store == 'VZ01' take the value in 'VZ01' and do - sum of all other stores
-    print(initial_stock_sku_store.columns)
+
+    print("dict_stocks")
     dict_stocks = {}
     for store in relevant_stores:
         if store == 'VZ01':
@@ -111,7 +110,8 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
             for sku in initial_stock_sku_store[initial_stock_sku_store['store'] == store]['sku'].unique():
                 dict_stocks[str(store)][str(sku)] = initial_stock_sku_store[(initial_stock_sku_store['store'] == store) & (initial_stock_sku_store['sku'] == sku)]['initial_stock'].iloc[0]
 
-
+    # start_dates: dict
+    print("start_dates")
     start_dates = {}
     for store in relevant_stores:
         store_data = initial_stock_sku_store[initial_stock_sku_store['store'] == store]
@@ -127,8 +127,8 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     # end_dates: dict
     #     end_dates[date] = [(sku),...]
     # by the last sales that not 0 in the f_sales_v_fashion
+    print("end_dates")
     end_dates = {}
-
     for sku in f_sales_v_fashion['sku'].unique():
         sku_data = f_sales_v_fashion[f_sales_v_fashion['sku'] == sku]
         sku_data = sku_data[sku_data['sales'] != 0]
@@ -163,6 +163,7 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
      76:10,
      89:57,82:106,7:173,69:26}
     #%%
+
     for date,stores in dict_arrivals_store_deliveries.items():
         for store_problem,store_same in fix_dict_arrivals_stores.items():
             if store_same in stores:
