@@ -101,9 +101,9 @@ if step2_fashion_strategy_calculation_task_id != "":
     print("-----------------------------------Phase 3 - tests for inputs dicts-----------------------------------")
 
 
-    def validate_stock_zero_for_VZ01(dict_stocks):
-        if 'VZ01' in dict_stocks:
-            for sku, stock in dict_stocks['VZ01'].items():
+    def validate_stock_zero_for_warehouse(dict_stocks, warehouse_store='VZ01'):
+        if warehouse_store in dict_stocks:
+            for sku, stock in dict_stocks[warehouse_store].items():
                 if stock == 0:
                     return False
         return True
@@ -198,7 +198,7 @@ if step2_fashion_strategy_calculation_task_id != "":
         return bool(dict_deliveries_from_warehouse) and bool(dict_arrivals_store_deliveries)
 
 
-    validate_stock_zero_for_VZ01_result = validate_stock_zero_for_VZ01(dict_stocks)
+    validate_stock_zero_for_warehouse_result = validate_stock_zero_for_warehouse(dict_stocks)
     validate_positive_stocks_result = validate_positive_stocks(dict_stocks)
     validate_start_end_dates_result = validate_start_end_dates(start_dates, end_dates)
     validate_store_sku_identifiers_result = validate_store_sku_identifiers(dict_stocks, dict_sales)
@@ -215,7 +215,7 @@ if step2_fashion_strategy_calculation_task_id != "":
     validate_non_empty_deliveries_result = validate_non_empty_deliveries(dict_deliveries_from_warehouse,
                                                                          dict_arrivals_store_deliveries)
 
-    print("validate_stock_zero_for_VZ01_result: ", validate_stock_zero_for_VZ01_result)
+    print("validate_stock_zero_for_warehouse_result: ", validate_stock_zero_for_warehouse_result)
     print("validate_positive_stocks_result: ", validate_positive_stocks_result)
     print("validate_start_end_dates_result: ", validate_start_end_dates_result)
     print("validate_store_sku_identifiers_result: ", validate_store_sku_identifiers_result)
