@@ -29,7 +29,7 @@ args = {
     "f_sales_v_table_name": "f_sales_v",
     "artikelstamm_table_name": "l_artikelstamm",
     "start_date": "2020-01-01",
-    "end_date": "2020-02-28"
+    "end_date": "2020-01-28"
 }
 task.connect(args)
 print('Arguments: {}'.format(args))
@@ -102,12 +102,16 @@ list3 = set(initial_stock_sku_store[(initial_stock_sku_store['store'] != 'VZ01')
 print("list3:", list3)
 list4 = set(max_stock_date_is_first_date_skus['sku'].unique().astype(str))
 print("list4:", list4)
+
 list_intersection_skus = set(list(list1.intersection(list2)))
 list_intersection_skus = set(list(list_intersection_skus.intersection(list3)))
 list_intersection_skus = list(list_intersection_skus.intersection(list4))
 print("list_intersection_skus:", list_intersection_skus)
 indexes_tuple_list = split_ids_index_per_machine(len(list_intersection_skus), number_of_machines)
 print("indexes_tuple_list:", indexes_tuple_list)
+
+initial_stock_sku_store = initial_stock_sku_store[initial_stock_sku_store['sku'].isin(list_intersection_skus)]
+f_sales_v_fashion = f_sales_v_fashion[f_sales_v_fashion['sku'].isin(list_intersection_skus)]
 
 print("-----------------------------------Phase 3 - Upload artifacts-----------------------------------")
 task.upload_artifact("f_sales_v_fashion", f_sales_v_fashion, wait_on_upload=True)

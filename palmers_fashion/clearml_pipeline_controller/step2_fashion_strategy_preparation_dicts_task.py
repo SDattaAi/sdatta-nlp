@@ -1,9 +1,8 @@
 import json
 import pickle
-
 import pandas as pd
 from clearml import Task
-from datetime import datetime
+from sdatta_learn.fashion_strategy.simulation.input_dicts_validation import *
 
 Task.add_requirements('requirements.txt')
 task = Task.init(project_name="palmers_fashion", task_name="step2_fashion_strategy_preparation_dicts_task")
@@ -15,14 +14,14 @@ task.add_tags(['todelete'])
 
 print("-----------------------------------Phase 0 - Update Arguments-----------------------------------")
 args = {
-    "number_of_this_machine": 1,
+    "number_of_this_machine": 0,
     'f_sales_v_fashion': pd.DataFrame(),
     'initial_stock_sku_store': pd.DataFrame(),
     'list_intersection_skus': ['100537293000001', '100539815000003'],
     'indexes_tuple_list': [(0, 1), (1, 2)],
     'step1_load_all_relevant_data_for_fashion_task_id': '',
-    'relevant_stores': ['51', 'VZ01'],
-    'start_date' : '2021-08-01',
+    'relevant_stores': ["76", "4134", "4904", "10", "100", "109", "11", "117", "133", "135", "141", "143", "164", "181", "183", "185", "201", "213", "214", "22", "3005", "3202", "4104", "4123", "4129", "42", "45", "46", "4803", "4906", "5", "67", "68", "7", "73", "8", "82", "88", "89", "104", "174", "3208", "37", "63", "91", "96", "202", "21", "90", "95", "121", "144", "147", "173", "4133", "47", "81", "170", "28", "172", "15", "166", "217", "27", "4", "51", "114", "122", "160", "3", "69", "182", "26", "105", "106", "119", "130", "136", "149", "150", "156", "159", "162", "167", "168", "171", "179", "18", "180", "184", "186", "189", "203", "215", "218", "220", "221", "225", "29", "44", "4805", "50", "52", "55", "56", "61", "64", "74", "79", "84", "85", "99", "152", "163", "175", "216", "219", "3245", "57", "3205", "43", "226", "35", "36", "123", "188", "VZ01"],
+    'start_date' : '2018-01-01',
     'end_date' : '2023-12-01'
 }
 
@@ -218,22 +217,63 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
 
     start_dates = create_fix_start_dates(start_dates, end_dates)
 
+    print("delete negative stock from warehouse")
+
+    _, list_sku_to_delete = validate_stock_not_negative_for_warehouse(dict_stocks)
+    print("list_sku_to_delete: ", list_sku_to_delete)
+
+    # remove from relevant_skus_to_this_machine list_sku_to_delete
+    relevant_skus_to_this_machine = [sku for sku in relevant_skus_to_this_machine if sku not in list_sku_to_delete]
+    dict_stocks = {store: {sku: stock for sku, stock in store_dict.items() if sku not in list_sku_to_delete} for store, store_dict in dict_stocks.items()}
+    dict_sales = {store: {date: [(sku, amount) for sku, amount in date_list if sku not in list_sku_to_delete] for date, date_list in store_dict.items()} for store, store_dict in dict_sales.items()}
+    start_dates = {date: [(sku, store) for sku, store in date_list if sku not in list_sku_to_delete] for date, date_list in start_dates.items()}
+    end_dates = {date: [sku for sku in date_list if sku not in list_sku_to_delete] for date, date_list in end_dates.items()}
+
 
     strategy_names = "naive_bayes"
     stores_simulation = relevant_stores
     skus_simulation = relevant_skus_to_this_machine
 
 
-    print("dict_arrivals_store_deliveries:", dict_arrivals_store_deliveries)
-    print("dict_deliveries_from_warehouse:", dict_deliveries_from_warehouse)
-    print("stores_simulation:", stores_simulation)
-    print("skus_simulation:", skus_simulation)
-    print("dict_sales:", dict_sales)
-    print("dict_stocks:", dict_stocks)
-    print("start_dates:", start_dates)
-    print("end_dates:", end_dates)
-    print("strategy_names:", strategy_names)
+    # print("dict_arrivals_store_deliveries:", dict_arrivals_store_deliveries)
+    # print("dict_deliveries_from_warehouse:", dict_deliveries_from_warehouse)
+    # print("stores_simulation:", stores_simulation)
+    # print("skus_simulation:", skus_simulation)
+    # print("dict_sales:", dict_sales)
+    # print("dict_stocks:", dict_stocks)
+    # print("start_dates:", start_dates)
+    # print("end_dates:", end_dates)
+    # print("strategy_names:", strategy_names)
 
+    print("number of skus:", len(skus_simulation))
+
+    validate_stock_not_negative_for_warehouse_result, _ = validate_stock_not_negative_for_warehouse(dict_stocks)
+    validate_start_end_dates_result = validate_start_end_dates(start_dates, end_dates)
+    validate_store_sku_identifiers_result = validate_store_sku_identifiers(dict_stocks, dict_sales)
+    validate_sales_date_format_result = validate_sales_date_format(dict_sales)
+    validate_sku_availability_result = validate_sku_availability(dict_stocks, dict_sales)
+    validate_sales_dates_within_simulation_period_result = validate_sales_dates_within_simulation_period(dict_sales,
+                                                                                                         start_date,
+                                                                                                         end_date)
+    validate_non_empty_inputs_result = validate_non_empty_inputs(dict_stocks, dict_sales)
+    validate_warehouse_delivery_dates_and_stores_result = validate_warehouse_delivery_dates_and_stores(
+        dict_deliveries_from_warehouse)
+    validate_store_delivery_dates_and_stores_result = validate_store_delivery_dates_and_stores(
+        dict_arrivals_store_deliveries)
+    validate_non_empty_deliveries_result = validate_non_empty_deliveries(dict_deliveries_from_warehouse,
+                                                                         dict_arrivals_store_deliveries)
+
+    print("validate_stock_not_negative_for_warehouse_result: ", validate_stock_not_negative_for_warehouse_result)
+    print("validate_start_end_dates_result: ", validate_start_end_dates_result)
+    print("validate_store_sku_identifiers_result: ", validate_store_sku_identifiers_result)
+    print("validate_sales_date_format_result: ", validate_sales_date_format_result)
+    print("validate_sku_availability_result: ", validate_sku_availability_result)
+    print("validate_sales_dates_within_simulation_period_result: ",
+          validate_sales_dates_within_simulation_period_result)
+    print("validate_non_empty_inputs_result: ", validate_non_empty_inputs_result)
+    print("validate_warehouse_delivery_dates_and_stores_result: ", validate_warehouse_delivery_dates_and_stores_result)
+    print("validate_store_delivery_dates_and_stores_result: ", validate_store_delivery_dates_and_stores_result)
+    print("validate_non_empty_deliveries_result: ", validate_non_empty_deliveries_result)
 
     print("-----------------------------------Phase 4 - upload dicts & array artifacts-----------------------------------")
     # upload json

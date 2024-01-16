@@ -1,16 +1,16 @@
 import json
 import pickle
-from datetime import datetime
 from clearml import Task
 from sdatta_learn.fashion_strategy.simulation.simulation_general import main_simulation, apply_strategy_opt_sw_avg, \
     apply_strategy_naive_bayes
 
+from sdatta_learn.fashion_strategy.simulation.input_dicts_validation import *
 Task.add_requirements("requirements.txt")
 task = Task.init(project_name="palmers_fashion", task_name="step3_fashion_strategy_calculation_task")
 task.set_base_docker("palmerscr.azurecr.io/clean/ubuntu22.04-private-pip:1.0.2")
 task.set_user_properties()
 task.set_repo(repo='git@github.com:SDattaAi/sdatta-nlp.git', branch='oran-branch')
-# task.execute_remotely('ultra-high-cpu')
+task.execute_remotely('ultra-high-cpu')
 task.add_tags(['todelete'])
 
 args = {
@@ -23,8 +23,8 @@ args = {
     "start_dates": {},
     "end_dates": {},
     "strategy_names": "naive_bayes",
-    "step2_fashion_strategy_calculation_task_id": "675b37f7a8ed4f62bed5252519bdc784",
-    "start_date": '2021-08-01',
+    "step2_fashion_strategy_calculation_task_id": "",
+    "start_date": '2018-01-01',
     "end_date": '2023-12-01',
 }
 print("-----------------------------------Phase 1 - update args-----------------------------------")
@@ -101,105 +101,8 @@ if step2_fashion_strategy_calculation_task_id != "":
     print("-----------------------------------Phase 3 - tests for inputs dicts-----------------------------------")
 
 
-    def validate_stock_zero_for_warehouse(dict_stocks, warehouse_store='VZ01'):
-        if warehouse_store in dict_stocks:
-            for sku, stock in dict_stocks[warehouse_store].items():
-                if stock == 0:
-                    return False
-        return True
 
-
-    def validate_positive_stocks(dict_stocks):
-        for store, skus in dict_stocks.items():
-            if any(stock < 0 for stock in skus.values()):
-                return False
-        return True
-
-
-    def validate_start_end_dates(start_dates, end_dates):
-        for date, sku_store_pairs in start_dates.items():
-            start_date = datetime.strptime(date, '%Y-%m-%d')
-            for sku, store in sku_store_pairs:
-                end_date_str = next((d for d in end_dates if sku in end_dates[d]), None)
-                if end_date_str:
-                    end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
-                    if start_date > end_date:
-                        return False
-        return True
-
-
-    def validate_store_sku_identifiers(dict_stocks, dict_sales):
-        valid_stores = set(dict_stocks.keys())
-        valid_skus = {sku for store_skus in dict_stocks.values() for sku in store_skus.keys()}
-
-        for store, sales_data in dict_sales.items():
-            if store not in valid_stores:
-                return False
-            for date, sales in sales_data.items():
-                for sku, _ in sales:
-                    if sku not in valid_skus:
-                        return False
-        return True
-
-
-    def validate_sales_date_format(dict_sales):
-        for store, sales_data in dict_sales.items():
-            for date in sales_data.keys():
-                try:
-                    datetime.strptime(date, '%Y-%m-%d')
-                except ValueError:
-                    return False
-        return True
-
-
-    def validate_sku_availability(dict_stocks, dict_sales):
-        for store, sales_data in dict_sales.items():
-            for date, sales in sales_data.items():
-                for sku, _ in sales:
-                    if not any(sku in stock_dict and stock_dict[sku] > 0 for stock_dict in dict_stocks.values()):
-                        return False
-        return True
-
-
-    def validate_sales_dates_within_simulation_period(dict_sales, start_date, end_date):
-        start = datetime.strptime(start_date, '%Y-%m-%d')
-        end = datetime.strptime(end_date, '%Y-%m-%d')
-        for store, sales_data in dict_sales.items():
-            for date in sales_data:
-                current_date = datetime.strptime(date, '%Y-%m-%d')
-                if current_date < start or current_date > end:
-                    return False
-        return True
-
-
-    def validate_non_empty_inputs(dict_stocks, dict_sales):
-        return bool(dict_stocks) and bool(dict_sales)
-
-
-    def validate_warehouse_delivery_dates_and_stores(dict_deliveries_from_warehouse):
-        for date, stores in dict_deliveries_from_warehouse.items():
-            try:
-                datetime.strptime(date, '%Y-%m-%d')
-            except ValueError:
-                return False  # Invalid date format
-        return True
-
-
-    def validate_store_delivery_dates_and_stores(dict_arrivals_store_deliveries):
-        for date, stores in dict_arrivals_store_deliveries.items():
-            try:
-                datetime.strptime(date, '%Y-%m-%d')
-            except ValueError:
-                return False  # Invalid date format
-        return True
-
-
-    def validate_non_empty_deliveries(dict_deliveries_from_warehouse, dict_arrivals_store_deliveries):
-        return bool(dict_deliveries_from_warehouse) and bool(dict_arrivals_store_deliveries)
-
-
-    validate_stock_zero_for_warehouse_result = validate_stock_zero_for_warehouse(dict_stocks)
-    validate_positive_stocks_result = validate_positive_stocks(dict_stocks)
+    validate_stock_not_negative_for_warehouse_result, _ = validate_stock_not_negative_for_warehouse(dict_stocks)
     validate_start_end_dates_result = validate_start_end_dates(start_dates, end_dates)
     validate_store_sku_identifiers_result = validate_store_sku_identifiers(dict_stocks, dict_sales)
     validate_sales_date_format_result = validate_sales_date_format(dict_sales)
@@ -215,8 +118,7 @@ if step2_fashion_strategy_calculation_task_id != "":
     validate_non_empty_deliveries_result = validate_non_empty_deliveries(dict_deliveries_from_warehouse,
                                                                          dict_arrivals_store_deliveries)
 
-    print("validate_stock_zero_for_warehouse_result: ", validate_stock_zero_for_warehouse_result)
-    print("validate_positive_stocks_result: ", validate_positive_stocks_result)
+    print("validate_stock_not_negative_for_warehouse_result: ", validate_stock_not_negative_for_warehouse_result)
     print("validate_start_end_dates_result: ", validate_start_end_dates_result)
     print("validate_store_sku_identifiers_result: ", validate_store_sku_identifiers_result)
     print("validate_sales_date_format_result: ", validate_sales_date_format_result)
