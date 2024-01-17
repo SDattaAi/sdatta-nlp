@@ -1,8 +1,7 @@
 import json
 import pickle
 from clearml import Task
-from fashion_strategy.simulation.simulation_general import main_simulation, apply_strategy_opt_sw_avg, \
-    apply_strategy_naive_bayes
+from fashion_strategy.simulation.simulation_general import main_simulation, apply_strategy_naive_bayes
 
 from fashion_strategy.simulation.input_dicts_validation import *
 Task.add_requirements("requirements.txt")
