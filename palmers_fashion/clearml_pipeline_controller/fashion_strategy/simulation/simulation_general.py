@@ -136,8 +136,7 @@ def update_stocks_by_sales(dict_stocks: dict, dict_sales: dict, MissedSales: dic
             continue
         if date not in dict_sales[store]:
             continue
-        for sale in dict_sales[store][date]:
-            sku, amount = sale
+        for sku, amount in dict_sales[store][date]:
             if sku not in dict_stocks[store]:
                 continue
             if dict_stocks[store][sku] >= amount:
@@ -146,7 +145,6 @@ def update_stocks_by_sales(dict_stocks: dict, dict_sales: dict, MissedSales: dic
                 MissedSales[store][sku] += amount - dict_stocks[store][sku]
                 dict_stocks[store][sku] = 0
 
-        # del dict_sales[store][date]
     return dict_stocks, MissedSales
 
 
