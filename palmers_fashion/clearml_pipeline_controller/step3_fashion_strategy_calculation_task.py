@@ -1,10 +1,10 @@
 import json
 import pickle
 from clearml import Task
-from sdatta_learn.fashion_strategy.simulation.simulation_general import main_simulation, apply_strategy_opt_sw_avg, \
+from fashion_strategy.simulation.simulation_general import main_simulation, apply_strategy_opt_sw_avg, \
     apply_strategy_naive_bayes
 
-from sdatta_learn.fashion_strategy.simulation.input_dicts_validation import *
+from fashion_strategy.simulation.input_dicts_validation import *
 Task.add_requirements("requirements.txt")
 task = Task.init(project_name="palmers_fashion", task_name="step3_fashion_strategy_calculation_task")
 task.set_base_docker("palmerscr.azurecr.io/clean/ubuntu22.04-private-pip:1.0.2")
