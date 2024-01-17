@@ -4,7 +4,6 @@ import pytest
 
 skus_simulation1 = ['sku1', 'sku2']
 dict_stocks1 = {'store1': {'sku1': 50, 'sku2': 30}, 'store2': {'sku1': 60, 'sku2': 20}}
-
 AshlonStock1 = {'store1': {}, 'store2': {}}
 MissedSales1 = {'store1': {'sku1': 0, 'sku2': 0}, 'store2': {'sku1': 0, 'sku2': 0}}
 ActiveStores1 = {'sku1': {'store1': 1, 'store2': 1}, 'sku2': {'store1': 1, 'store2': 1}}

@@ -569,7 +569,7 @@ def apply_strategy(strategy_function, *args, **kwargs):
 
 # %%
 def main_simulation(dict_deliveries_from_warehouse: dict, dict_arrivals_store_deliveries: dict, skus_simulation: list,
-                    dict_sales: dict, dict_stocks: dict, start_dates: dict, end_dates: dict,strategy_function,**strategy_specific_args) -> None:
+                    dict_sales: dict, dict_stocks: dict, start_dates: dict, end_dates: dict,strategy_function,**strategy_specific_args) -> dict:
     """
     This function is the main simulation function by the next steps:
     0. initialize all the dicts : AshlonStock, MissedSales, ActiveStores, current_stocks
