@@ -28,10 +28,4 @@ expected6 = 5641165
 ])
 def test_extract_last_sale_for_sku(store, sku, current_date, dict_sales, expected_result):
     result = extract_last_sale_for_sku(dict_sales, store, sku, current_date)
-    print("")
-    print("store", store)
-    print("sku", sku)
-    print("current_date", current_date)
-    print("dict_sales", dict_sales)
-    print("result", result)
     assert result == expected_result
