@@ -55,5 +55,6 @@ def test_apply_strategy_naive_bayes(current_stock, AshlonStock, ActiveStores, cu
     print("current_stock1 = ", current_stock)
     print("AshlonStock1 = ", AshlonStock)
     print("accumulated_stocks1 = ", accumulated_stocks)
+    raise NotImplementedError  # Remove this line when you have implemented the function
 
     # Check if the result matches the expected result
