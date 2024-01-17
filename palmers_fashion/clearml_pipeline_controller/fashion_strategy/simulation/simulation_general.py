@@ -57,6 +57,7 @@ def initialize_kpi_structures(dict_stocks: dict, skus_simulation: list) -> (dict
     Ex_total_days_wo_inv = {}
     loose = {}
     for sku in skus_simulation:
+        print("sku", sku)
         d_wo_inv[sku] = {}
         d_wo_inv_wo_wh[sku] = {}
         Ex_i_s_r[sku] = {}
