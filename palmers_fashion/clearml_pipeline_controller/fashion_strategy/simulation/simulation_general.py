@@ -25,21 +25,17 @@ dict, dict, dict, list, list, list, list):
     ActiveStores = {}
     current_stock = {}
     accumulated_stocks = dict_stocks.copy()
-    accumulated_AshlonStock = []
-    accumulated_ActiveStores = []
     for sku in skus_simulation:
         ActiveStores[sku] = {}
     for store in dict_stocks:
         store = str(store)
         AshlonStock[store] = {}
         MissedSales[store] = {}
-        ActiveStores[store] = {}
         current_stock[store] = {}
         for sku in skus_simulation:
             MissedSales[store][sku] = 0
             ActiveStores[sku][store] = 1
-    return AshlonStock, MissedSales, ActiveStores, current_stock, accumulated_stocks, accumulated_AshlonStock, accumulated_ActiveStores
-
+    return AshlonStock, MissedSales, ActiveStores, current_stock, accumulated_stocks
 
 def initialize_kpi_structures(dict_stocks: dict, skus_simulation: list) -> (dict, dict, dict, dict, dict, dict):
     """
@@ -624,7 +620,7 @@ def main_simulation(dict_deliveries_from_warehouse: dict, dict_arrivals_store_de
         4. MissedSales[store][date] = (sku, amount)
         5. ActiveStores[store] = 1/0
     """
-    AshlonStock, MissedSales, ActiveStores, current_stock, accumulated_stocks, accumulated_AshlonStock, accumulated_ActiveStores = initialize_all_the_dicts(
+    AshlonStock, MissedSales, ActiveStores, current_stock, accumulated_stocks = initialize_all_the_dicts(
         skus_simulation, dict_stocks)
     d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, loose = initialize_kpi_structures(
         dict_stocks, skus_simulation)
