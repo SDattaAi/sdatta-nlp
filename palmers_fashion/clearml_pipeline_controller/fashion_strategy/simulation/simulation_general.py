@@ -368,8 +368,8 @@ def update_info_for_kpi(accumulated_stocks: dict, current_stock: dict, Ex_i_s_r:
                     Ex_i_s_r[sku][store]['len'] += 1
                     Ex_i_s_r[sku][store]['sum'] += total_sales / total_stock
                 avg_integral_diff[sku][store]['len'] += 1
-                avg_integral_diff[sku][store]['sum'] += current_stock[store][sku] - 1 if current_stock[store][
-                                                                                             sku] > 0 else margin_ratio
+                avg_integral_diff[sku][store]['sum'] += current_stock[store][sku] - 1 if current_stock[store][sku] > 0 \
+                    else margin_ratio
         for sku in current_stock['VZ01']:
             relevant_store_per_sku = [store for store in current_stock if sku in current_stock[store]]
             total_stock = np.sum([accumulated_stocks[store][sku] for store in relevant_store_per_sku])
@@ -434,13 +434,13 @@ def kill_and_save_results(accumulated_stocks: dict, d_wo_inv: dict, d_wo_inv_wo_
                 Ex_total_days_wo_inv[sku][store]["len"] != 0 else None
                 Ex_i_s_r_sum_divde_Ex_i_s_r = Ex_i_s_r[sku][store]["sum"] / Ex_i_s_r[sku][store]["len"] if \
                 Ex_i_s_r[sku][store]["len"] != 0 else None
-                final_kpi_res[f'{sku}_{store}'] = {f'days without stock' : d_wo_inv[sku][store],
+                final_kpi_res[f'{sku}_{store}'] = {f'days without stock': d_wo_inv[sku][store],
                                                    f'days without stock, without warehouse': d_wo_inv_wo_wh[sku][store],
                                                    f'expected value inventory sales ratio': Ex_i_s_r_sum_divde_Ex_i_s_r,
                                                    f'average integral difference': avg_integral_diff_sum_divde_avg_integral_diff,
                                                    f'expected value total days without inventory': Ex_total_days_wo_inv_sum_divde_Ex_total_days_wo_inv,
                                                    f'lose ratio': lose,
-                                                   f'missed sales' : MissedSales[store][sku],
+                                                   f'missed sales': MissedSales[store][sku],
                                                    f'accumulated stock': accumulated_stocks[store][sku]}
             if sku in accumulated_stocks[store]:
                 del accumulated_stocks[store][sku]

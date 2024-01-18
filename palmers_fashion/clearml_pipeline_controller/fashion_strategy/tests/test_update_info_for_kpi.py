@@ -16,16 +16,17 @@ Ex_i_s_r1 = {
     'sku1': {'store1': {'len': 2, 'sum': 0}, 'store2': {'len': 2, 'sum': 0}, 'VZ01': {'len': 8, 'sum': 0}},
     'sku2': {'store1': {'len': 2, 'sum': 0}, 'store2': {'len': 2, 'sum': 0}, 'VZ01': {'len': 10, 'sum': 0}}
 }
+
 avg_integral_diff1 = {
     'sku1': {'store1': {'len': 2, 'sum': 0}, 'store2': {'len': 2, 'sum': 0}},
     'sku2': {'store1': {'len': 2, 'sum': 0}, 'store2': {'len': 2, 'sum': 0}}
 }
 
 
-expected_Ex_i_s_r1 = {'sku1': {'VZ01': {'len': 10, 'sum': 1.982608695652174},
+expected_Ex_i_s_r1 = {'sku1': {'VZ01': {'len': 11, 'sum': 2.973913043478261},
           'store1': {'len': 3, 'sum': 0.99},
           'store2': {'len': 3, 'sum': 0.9}},
- 'sku2': {'VZ01': {'len': 12, 'sum': 1.9829787234042553},
+ 'sku2': {'VZ01': {'len': 13, 'sum': 2.974468085106383},
           'store1': {'len': 3, 'sum': 0.99},
           'store2': {'len': 3, 'sum': 0.9}}}
 expected_avg_integral_diff1 = {'sku1': {'store1': {'len': 3, 'sum': 0}, 'store2': {'len': 3, 'sum': 4}},
