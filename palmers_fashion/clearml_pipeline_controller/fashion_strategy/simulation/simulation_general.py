@@ -304,8 +304,6 @@ def update_current_stock_with_kill_sku(current_stock: dict, end_dates: dict, dat
                     lose[sku] += amount
 
                     del ashelon_stock[store][date_str][sku_index]
-                if  ashelon_stock[store][date_str] == []:
-                    del ashelon_stock[store][date_str]
         if tempo_sku_total_stock == 0:
             raise ValueError(f"initial stock for sku {sku} is 0")
         lose[sku] = lose[sku] / tempo_sku_total_stock
@@ -425,7 +423,7 @@ def kill_and_save_results(accumulated_stocks: dict, d_wo_inv: dict, d_wo_inv_wo_
     for sku in end_dates[date]:
         for store in accumulated_stocks:
             if sku in accumulated_stocks[store]:
-                lose = d_wo_inv[sku]["VZ01"] * (np.exp(lamda * lose[sku]) - 1), lose[sku] if store == "VZ01" else None
+                lose_value_per_sku = d_wo_inv[sku]["VZ01"] * (np.exp(lamda * lose[sku]) - 1), lose[sku] if store == "VZ01" else None
                 avg_integral_diff_sum_divde_avg_integral_diff = avg_integral_diff[sku][store]["sum"] / \
                                                                 avg_integral_diff[sku][store]["len"] if \
                 avg_integral_diff[sku][store]["len"] != 0 else None
@@ -439,7 +437,7 @@ def kill_and_save_results(accumulated_stocks: dict, d_wo_inv: dict, d_wo_inv_wo_
                                                    f'expected value inventory sales ratio': Ex_i_s_r_sum_divde_Ex_i_s_r,
                                                    f'average integral difference': avg_integral_diff_sum_divde_avg_integral_diff,
                                                    f'expected value total days without inventory': Ex_total_days_wo_inv_sum_divde_Ex_total_days_wo_inv,
-                                                   f'lose ratio': lose,
+                                                   f'lose ratio': lose_value_per_sku,
                                                    f'missed sales': MissedSales[store][sku],
                                                    f'accumulated stock': accumulated_stocks[store][sku]}
             if sku in accumulated_stocks[store]:
