@@ -66,7 +66,8 @@ def initialize_kpi_structures(dict_stocks: dict, skus_simulation: list) -> (dict
         lose[sku] = 0
         for store in dict_stocks:
             d_wo_inv[sku][store] = 0
-            d_wo_inv_wo_wh[sku][store] = 0
+            if store != "VZ01":
+                d_wo_inv_wo_wh[sku][store] = 0
             Ex_i_s_r[sku][store] = {'len': 0, 'sum': 0}
             avg_integral_diff[sku][store] = {'len': 0, 'sum': 0}
             Ex_total_days_wo_inv[sku][store] = {'len': 0, 'sum': 0}
@@ -320,7 +321,7 @@ def update_kpi_wo_inv(d_wo_inv: dict, d_wo_inv_wo_wh: dict, current_stock: dict,
     d_wo_inv: dict
         d_wo_inv[sku][store] = amount
     d_wo_inv_wo_wh: dict
-        d_wo_inv_wo_wh[sku][store] = amount
+        d_wo_inv_wo_wh[sku]['VZ01'] = amount
     current_stock: dict
         current_stock[store][sku] = amount
 
@@ -329,15 +330,12 @@ def update_kpi_wo_inv(d_wo_inv: dict, d_wo_inv_wo_wh: dict, current_stock: dict,
     """
     for store in current_stock:
         for sku in current_stock[store]:
+            Ex_total_days_wo_inv[sku][store]['len'] += 1
             if current_stock[store][sku] == 0:
                 d_wo_inv[sku][store] += 1
-                Ex_total_days_wo_inv[sku][store]['len'] += 1
-                Ex_total_days_wo_inv[sku][store]['sum'] += d_wo_inv[sku][store] / Ex_total_days_wo_inv[sku][store][
-                    'len']
-                if store != "VZ01" and current_stock[store][sku] == 0:
+                Ex_total_days_wo_inv[sku][store]['sum'] += 1
+                if store != "VZ01":
                     d_wo_inv_wo_wh[sku][store] += 1
-            else:
-                Ex_total_days_wo_inv[sku][store]['len'] += 1
     return d_wo_inv, d_wo_inv_wo_wh, Ex_total_days_wo_inv
 
 
