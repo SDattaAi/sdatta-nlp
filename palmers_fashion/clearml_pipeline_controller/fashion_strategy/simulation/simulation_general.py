@@ -55,7 +55,7 @@ def initialize_kpi_structures(dict_stocks: dict, skus_simulation: list) -> (dict
     Ex_i_s_r = {}
     avg_integral_diff = {}
     Ex_total_days_wo_inv = {}
-    loose = {}
+    lose = {}
     for sku in skus_simulation:
         print("sku", sku)
         d_wo_inv[sku] = {}
@@ -63,7 +63,7 @@ def initialize_kpi_structures(dict_stocks: dict, skus_simulation: list) -> (dict
         Ex_i_s_r[sku] = {}
         avg_integral_diff[sku] = {}
         Ex_total_days_wo_inv[sku] = {}
-        loose[sku] = 0
+        lose[sku] = 0
         for store in dict_stocks:
             d_wo_inv[sku][store] = 0
             d_wo_inv_wo_wh[sku][store] = 0
@@ -71,7 +71,7 @@ def initialize_kpi_structures(dict_stocks: dict, skus_simulation: list) -> (dict
             avg_integral_diff[sku][store] = {'len': 0, 'sum': 0}
             Ex_total_days_wo_inv[sku][store] = {'len': 0, 'sum': 0}
 
-    return d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, loose
+    return d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, lose
 
 
 # %%
@@ -261,7 +261,7 @@ def update_current_stock_with_new_sku(current_stock: dict, start_dates: dict, da
 
 
 # %%
-def update_current_stock_with_kill_sku(current_stock: dict, end_dates: dict, date: str, loose: dict, dict_stocks: dict,
+def update_current_stock_with_kill_sku(current_stock: dict, end_dates: dict, date: str, lose: dict, dict_stocks: dict,
                                        ashelon_stock: dict) -> tuple[dict, dict, dict]:
     """
     This function update current_stock with kill sku
@@ -273,34 +273,42 @@ def update_current_stock_with_kill_sku(current_stock: dict, end_dates: dict, dat
         end_dates[date] = [(sku),...]
     date: str
         date of the simulation
-    loose: dict
-        loose[sku] = percent of loose
+    lose: dict
+        lose[sku] = percent of lose
     -------
-    return: current_stock, loose
+    return: current_stock, lose
 
     Note:
-        1. loose is the percent of the stock that we have not sold
+        1. lose is the percent of the stock that we have not sold
     """
     date_datetime = pd.to_datetime(date)
     for sku in end_dates[date]:
         tempo_sku_total_stock = 0
         for store in current_stock:
             if sku in current_stock[store]:
-                loose[sku] += current_stock[store][sku]
+                lose[sku] += current_stock[store][sku]
                 del current_stock[store][sku]
             if store in dict_stocks and sku in dict_stocks.get(store, {}):
                 tempo_sku_total_stock += dict_stocks[store][sku]
             for date_str in pd.date_range(date_datetime, date_datetime + pd.Timedelta(days=2), freq="D"):
+
                 date_str = date_str.strftime('%Y-%m-%d')
-                if store in ashelon_stock and date_str in ashelon_stock.get(store, {}) and sku in ashelon_stock[
-                    store].get(date_str, {}):
-                    sku, amount = ashelon_stock[store][date_str]
-                    loose[sku] += amount
+
+                if store in ashelon_stock and date_str in ashelon_stock.get(store, {}) and sku in [item[0] for item in ashelon_stock[
+                    store].get(date_str, {})]:
+                    # find the index of sku
+                    sku_index = [item[0] for item in ashelon_stock[store].get(date_str, {})].index(sku)
+
+                    sku, amount = ashelon_stock[store][date_str][sku_index]
+                    lose[sku] += amount
+
+                    del ashelon_stock[store][date_str][sku_index]
+                if  ashelon_stock[store][date_str] == []:
                     del ashelon_stock[store][date_str]
         if tempo_sku_total_stock == 0:
             raise ValueError(f"initial stock for sku {sku} is 0")
-        loose[sku] = loose[sku] / tempo_sku_total_stock
-    return current_stock, loose, ashelon_stock
+        lose[sku] = lose[sku] / tempo_sku_total_stock
+    return current_stock, lose, ashelon_stock
 
 
 def update_kpi_wo_inv(d_wo_inv: dict, d_wo_inv_wo_wh: dict, current_stock: dict, Ex_total_days_wo_inv: dict) -> tuple[
@@ -377,7 +385,7 @@ def update_info_for_kpi(accumulated_stocks: dict, current_stock: dict, Ex_i_s_r:
 
 # %%
 def kill_and_save_results(accumulated_stocks: dict, d_wo_inv: dict, d_wo_inv_wo_wh: dict, Ex_i_s_r: dict,
-                          avg_integral_diff: dict, Ex_total_days_wo_inv: dict, loose: dict, date: str, end_dates: dict,
+                          avg_integral_diff: dict, Ex_total_days_wo_inv: dict, lose: dict, date: str, end_dates: dict,
                           MissedSales: dict, lamda: float = 0.1):
     """
     This function processes and calculates KPIs, and returns updated dictionaries along with final_kpi_res.
@@ -396,8 +404,8 @@ def kill_and_save_results(accumulated_stocks: dict, d_wo_inv: dict, d_wo_inv_wo_
         Dictionary of average integral differences.
     Ex_total_days_wo_inv: dict
         Dictionary of expected value of total days without inventory.
-    loose: dict
-        Dictionary of loose percentages.
+    lose: dict
+        Dictionary of lose percentages.
     date: str
         Date of the simulation.
     end_dates: dict
@@ -410,15 +418,15 @@ def kill_and_save_results(accumulated_stocks: dict, d_wo_inv: dict, d_wo_inv_wo_
     Returns:
     -------
     Tuple containing accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff,
-    Ex_total_days_wo_inv, loose, MissedSales, final_kpi_res.
+    Ex_total_days_wo_inv, lose, MissedSales, final_kpi_res.
     """
     if date not in end_dates:
-        return accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, loose, MissedSales, {}
+        return accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, lose, MissedSales, {}
     final_kpi_res = {}
     for sku in end_dates[date]:
         for store in accumulated_stocks:
             if sku in accumulated_stocks[store]:
-                lose = d_wo_inv[sku]["VZ01"] * (np.exp(lamda * loose[sku]) - 1), loose[sku] if store == "VZ01" else None
+                lose = d_wo_inv[sku]["VZ01"] * (np.exp(lamda * lose[sku]) - 1), lose[sku] if store == "VZ01" else None
                 avg_integral_diff_sum_divde_avg_integral_diff = avg_integral_diff[sku][store]["sum"] / \
                                                                 avg_integral_diff[sku][store]["len"] if \
                 avg_integral_diff[sku][store]["len"] != 0 else None
@@ -438,9 +446,9 @@ def kill_and_save_results(accumulated_stocks: dict, d_wo_inv: dict, d_wo_inv_wo_
             if sku in accumulated_stocks[store]:
                 del accumulated_stocks[store][sku]
                 del MissedSales[store][sku]
-        del loose[sku], Ex_total_days_wo_inv[sku], Ex_i_s_r[sku], d_wo_inv_wo_wh[sku], d_wo_inv[sku], avg_integral_diff[
+        del lose[sku], Ex_total_days_wo_inv[sku], Ex_i_s_r[sku], d_wo_inv_wo_wh[sku], d_wo_inv[sku], avg_integral_diff[
             sku]
-    return accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, loose, MissedSales, final_kpi_res
+    return accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, lose, MissedSales, final_kpi_res
 
 
 
@@ -621,7 +629,7 @@ def main_simulation(dict_deliveries_from_warehouse: dict, dict_arrivals_store_de
     """
     AshlonStock, MissedSales, ActiveStores, current_stock, accumulated_stocks = initialize_all_the_dicts(
         skus_simulation, dict_stocks)
-    d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, loose = initialize_kpi_structures(
+    d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, lose = initialize_kpi_structures(
         dict_stocks, skus_simulation)
     start_dates_copy = start_dates.copy()
     start_dates_copy = {pd.to_datetime(date): start_dates_copy[date] for date in start_dates_copy}
@@ -637,8 +645,8 @@ def main_simulation(dict_deliveries_from_warehouse: dict, dict_arrivals_store_de
             current_stock, Ex_total_days_wo_inv, Ex_i_s_r, avg_integral_diff = update_current_stock_with_new_sku(
                 current_stock, start_dates, date_str, dict_stocks, Ex_total_days_wo_inv, Ex_i_s_r, avg_integral_diff)
         if date_str in end_dates.keys():
-            current_stock, loose, AshlonStock = update_current_stock_with_kill_sku(current_stock, end_dates, date_str,
-                                                                                   loose, accumulated_stocks,
+            current_stock, lose, AshlonStock = update_current_stock_with_kill_sku(current_stock, end_dates, date_str,
+                                                                                   lose, accumulated_stocks,
                                                                                    AshlonStock)
         if date_str in dict_arrivals_store_deliveries:
             current_stores_arrivals_stock = dict_arrivals_store_deliveries[date_str]
@@ -656,9 +664,9 @@ def main_simulation(dict_deliveries_from_warehouse: dict, dict_arrivals_store_de
                                                                             **strategy_specific_args)
         Ex_i_s_r, avg_integral_diff = update_info_for_kpi(accumulated_stocks, current_stock, Ex_i_s_r,
                                                           avg_integral_diff)
-        accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, loose, MissedSales, final_kpi_res = \
+        accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, lose, MissedSales, final_kpi_res = \
             kill_and_save_results(
-                accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, loose,
+                accumulated_stocks, d_wo_inv, d_wo_inv_wo_wh, Ex_i_s_r, avg_integral_diff, Ex_total_days_wo_inv, lose,
                 date_str, end_dates, MissedSales)
         all_results[date_str] = final_kpi_res
     return all_results
