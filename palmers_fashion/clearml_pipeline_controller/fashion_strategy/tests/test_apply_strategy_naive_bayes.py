@@ -39,22 +39,22 @@ date = '2024-01-03'
 
 
 # Define test cases using pytest.mark.parametrize
-@pytest.mark.parametrize(
-    "current_stock, AshlonStock, ActiveStores, current_stores_replenished, dict_sales, accumulated_stocks, date, expected_result",
-    [
-        (current_stock, AshlonStock, ActiveStores, current_stores_replenished, dict_sales, accumulated_stocks, date,
-         (current_stock, AshlonStock, accumulated_stocks)),
-        # Add more test cases here with different input values and expected results
-    ])
-def test_apply_strategy_naive_bayes(current_stock, AshlonStock, ActiveStores, current_stores_replenished, dict_sales,
-                                    accumulated_stocks, date, expected_result):
-    # Call the function with the test inputs
-    current_stock, AshlonStock, accumulated_stocks = apply_strategy_naive_bayes(current_stock, AshlonStock, ActiveStores, current_stores_replenished,
-                                        dict_sales, accumulated_stocks, date)
-
-    print("current_stock1 = ", current_stock)
-    print("AshlonStock1 = ", AshlonStock)
-    print("accumulated_stocks1 = ", accumulated_stocks)
-    raise NotImplementedError  # Remove this line when you have implemented the function
+# @pytest.mark.parametrize(
+#     "current_stock, AshlonStock, ActiveStores, current_stores_replenished, dict_sales, accumulated_stocks, date, expected_result",
+#     [
+#         (current_stock, AshlonStock, ActiveStores, current_stores_replenished, dict_sales, accumulated_stocks, date,
+#          (current_stock, AshlonStock, accumulated_stocks)),
+#         # Add more test cases here with different input values and expected results
+#     ])
+# def test_apply_strategy_naive_bayes(current_stock, AshlonStock, ActiveStores, current_stores_replenished, dict_sales,
+#                                     accumulated_stocks, date, expected_result):
+#     # Call the function with the test inputs
+#     current_stock, AshlonStock, accumulated_stocks = apply_strategy_naive_bayes(current_stock, AshlonStock, ActiveStores, current_stores_replenished,
+#                                         dict_sales, accumulated_stocks, date)
+#
+#     print("current_stock1 = ", current_stock)
+#     print("AshlonStock1 = ", AshlonStock)
+#     print("accumulated_stocks1 = ", accumulated_stocks)
+#     raise NotImplementedError  # Remove this line when you have implemented the function
 
     # Check if the result matches the expected result
