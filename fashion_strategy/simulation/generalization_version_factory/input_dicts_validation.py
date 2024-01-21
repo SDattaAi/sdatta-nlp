@@ -9,7 +9,6 @@ def validate_stock_zero_for_warehouse(dict_stocks, warehouse_store='VZ01'):
             if stock == 0:
                 list_sku_to_delete.append(sku)
                 bool = False
-    print("list_sku_to_delete: ", list_sku_to_delete)
     return bool
 
 
