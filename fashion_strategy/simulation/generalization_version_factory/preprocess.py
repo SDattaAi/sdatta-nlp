@@ -96,4 +96,4 @@ def create_fix_start_dates(start_dates, end_dates):
             if not sku_store_pairs:
                 del start_dates[start_date_str]
 
-        return start_dates
+    return start_dates
