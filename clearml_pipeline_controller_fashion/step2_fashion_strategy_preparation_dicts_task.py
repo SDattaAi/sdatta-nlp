@@ -2,7 +2,7 @@ import json
 import pickle
 import pandas as pd
 from clearml import Task
-from fashion_strategy.simulation.input_dicts_validation import *
+from fashion_strategy.simulation.generalization_version_factory.input_dicts_validation import *
 from fashion_strategy.simulation.generalization_version_factory.preprocess import *
 
 Task.add_requirements('requirements.txt')

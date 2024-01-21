@@ -2,7 +2,7 @@ import json
 import pickle
 from clearml import Task
 from fashion_strategy.simulation.simulation_general import main_simulation, apply_strategy_naive_bayes
-from fashion_strategy.simulation.input_dicts_validation import *
+from fashion_strategy.simulation.generalization_version_factory.input_dicts_validation import *
 
 Task.add_requirements("requirements.txt")
 task = Task.init(project_name="palmers_fashion", task_name="step3_fashion_strategy_calculation_task")
