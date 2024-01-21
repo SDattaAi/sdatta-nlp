@@ -3,6 +3,7 @@ import pickle
 import pandas as pd
 from clearml import Task
 from sdatta_learn.fashion_strategy.simulation.input_dicts_validation import *
+from fashion_strategy.simulation.generalization_version_factory.preprocess import *
 
 Task.add_requirements('requirements.txt')
 task = Task.init(project_name="palmers_fashion", task_name="step2_fashion_strategy_preparation_dicts_task")
@@ -19,7 +20,7 @@ args = {
     'initial_stock_sku_store': pd.DataFrame(),
     'list_intersection_skus': ['100537293000001', '100539815000003'],
     'indexes_tuple_list': [(0, 1), (1, 2)],
-    'step1_load_all_relevant_data_for_fashion_task_id': '',
+    'step1_load_all_relevant_data_for_fashion_task_id': '98c4260e1d7644e28bb6c236c71db32b',
     'relevant_stores': ["76", "4134", "4904", "10", "100", "109", "11", "117", "133", "135", "141", "143", "164", "181", "183", "185", "201", "213", "214", "22", "3005", "3202", "4104", "4123", "4129", "42", "45", "46", "4803", "4906", "5", "67", "68", "7", "73", "8", "82", "88", "89", "104", "174", "3208", "37", "63", "91", "96", "202", "21", "90", "95", "121", "144", "147", "173", "4133", "47", "81", "170", "28", "172", "15", "166", "217", "27", "4", "51", "114", "122", "160", "3", "69", "182", "26", "105", "106", "119", "130", "136", "149", "150", "156", "159", "162", "167", "168", "171", "179", "18", "180", "184", "186", "189", "203", "215", "218", "220", "221", "225", "29", "44", "4805", "50", "52", "55", "56", "61", "64", "74", "79", "84", "85", "99", "152", "163", "175", "216", "219", "3245", "57", "3205", "43", "226", "35", "36", "123", "188", "VZ01"],
     'start_date' : '2018-01-01',
     'end_date' : '2023-12-01'
@@ -78,66 +79,16 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     # dict_sales : dict
     #     dict_sales[store][date] = [(sku, amount), ...]
     print("dict_sales")
-    dict_sales = {}
-    for store in f_sales_v_fashion['store'].unique():
-        store_data = f_sales_v_fashion[f_sales_v_fashion['store'] == store]
-        dict_sales[str(store)] = {}
-        for date in store_data['date'].astype(str).unique():
-            date_data = store_data[store_data['date'] == date]
-            dict_sales[str(store)][str(date)] = []
-            for sku in date_data['sku'].unique():
-                sku_data = date_data[date_data['sku'] == sku]
-                amount = sku_data['sales'].sum()
-                dict_sales[str(store)][str(date)].append((str(sku), amount))
-
-
-
+    dict_sales = dict_sales_from_f_sales_v(f_sales_v_fashion)
 
     print("dict_stocks")
-    dict_stocks = {}
-    for store in relevant_stores:
-        if store == 'VZ01':
-            dict_stocks[str(store)] = {}
-            for sku in initial_stock_sku_store[initial_stock_sku_store['store'] == store]['sku'].unique():
-                sku_warehouse_data = initial_stock_sku_store[(initial_stock_sku_store['store'] == store) & (initial_stock_sku_store['sku'] == sku)]
-                first_value_of_warehouse = sku_warehouse_data['initial_stock'].iloc[0]
-                sku_warehouse_date = sku_warehouse_data['first_initial_stock_date'].iloc[0]
-                other_stores_stock_after_warehouse = initial_stock_sku_store[(initial_stock_sku_store['sku'] == sku) & (initial_stock_sku_store['store'] != store) & (initial_stock_sku_store['first_initial_stock_date'] > sku_warehouse_date)]['initial_stock'].sum()
-                dict_stocks[str(store)][str(sku)] = first_value_of_warehouse - other_stores_stock_after_warehouse
-        else:
-            dict_stocks[str(store)] = {}
-            for sku in initial_stock_sku_store[initial_stock_sku_store['store'] == store]['sku'].unique():
-                dict_stocks[str(store)][str(sku)] = initial_stock_sku_store[(initial_stock_sku_store['store'] == store) & (initial_stock_sku_store['sku'] == sku)]['initial_stock'].iloc[0]
+    dict_stocks = dict_stocks_from_initial_stock_sku_store(initial_stock_sku_store, relevant_stores)
 
-    # start_dates: dict
     print("start_dates")
-    start_dates = {}
-    for store in relevant_stores:
-        store_data = initial_stock_sku_store[initial_stock_sku_store['store'] == store]
-        for sku in store_data['sku'].unique():
-            sku_data = store_data[store_data['sku'] == sku]
-            sku_data = sku_data[sku_data['initial_stock'] != 0]
-            if not sku_data.empty:
-                first_date = sku_data['first_initial_stock_date'].iloc[0]
-                if first_date not in start_dates:
-                    start_dates[str(first_date)] = []
-                start_dates[str(first_date)].append((str(sku), str(store)))
+    start_dates = start_dates_from_initial_stock_sku_store(initial_stock_sku_store, relevant_stores)
 
-    # end_dates: dict
-    #     end_dates[date] = [(sku),...]
-    # by the last sales that not 0 in the f_sales_v_fashion
     print("end_dates")
-    end_dates = {}
-    for sku in f_sales_v_fashion['sku'].unique():
-        sku_data = f_sales_v_fashion[f_sales_v_fashion['sku'] == sku]
-        sku_data = sku_data[sku_data['sales'] != 0]
-        if not sku_data.empty:
-            last_date = sku_data['date'].max().strftime('%Y-%m-%d')
-            if last_date not in end_dates:
-                end_dates[str(last_date)] = []
-            end_dates[str(last_date)].append(str(sku))
-
-
+    end_dates = end_dates_from_f_sales_v(f_sales_v_fashion)
 
     dict_arrivals_store_deliveries_path = r"date_to_store_deliveries_dict.json"
     dict_deliveries_from_warehouse_dict_path = r"deliveries_from_wharehouse_dict.json"
@@ -185,35 +136,9 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     print(" fix start_dates")
 
 
-    def parse_date(date_str):
-        return datetime.strptime(date_str, '%Y-%m-%d')
 
-    def create_fix_start_dates(start_dates, end_dates):
-        # Convert string dates to datetime objects for comparison
 
-        # Create a dictionary to map each SKU to its earliest end date
-        sku_end_dates = {}
-        for end_date_str, skus in end_dates.items():
-            end_date = parse_date(end_date_str)
-            for sku in skus:
-                if sku not in sku_end_dates or end_date < sku_end_dates[sku]:
-                    sku_end_dates[sku] = end_date
 
-        # Iterate through each date in start_dates and remove SKUs with earlier end dates
-        for start_date_str, sku_store_pairs in list(start_dates.items()):  # Use list() to avoid RuntimeError
-            start_date = parse_date(start_date_str)
-
-            # Iterate through each SKU-store pair
-            for sku_store_pair in list(sku_store_pairs):  # Use list() to avoid RuntimeError
-                sku = sku_store_pair[0]
-                if sku in sku_end_dates and start_date > sku_end_dates[sku]:
-                    sku_store_pairs.remove(sku_store_pair)
-
-            # If no pairs left for the date, remove the date from start_dates
-            if not sku_store_pairs:
-                del start_dates[start_date_str]
-
-        return start_dates
 
     start_dates = create_fix_start_dates(start_dates, end_dates)
 
@@ -223,6 +148,7 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     print("list_sku_to_delete: ", list_sku_to_delete)
 
     # remove from relevant_skus_to_this_machine list_sku_to_delete
+
     relevant_skus_to_this_machine = [sku for sku in relevant_skus_to_this_machine if sku not in list_sku_to_delete]
     dict_stocks = {store: {sku: stock for sku, stock in store_dict.items() if sku not in list_sku_to_delete} for store, store_dict in dict_stocks.items()}
     dict_sales = {store: {date: [(sku, amount) for sku, amount in date_list if sku not in list_sku_to_delete] for date, date_list in store_dict.items()} for store, store_dict in dict_sales.items()}
@@ -233,17 +159,6 @@ if  step1_load_all_relevant_data_for_fashion_task_id != '':
     strategy_names = "naive_bayes"
     stores_simulation = relevant_stores
     skus_simulation = relevant_skus_to_this_machine
-
-
-    # print("dict_arrivals_store_deliveries:", dict_arrivals_store_deliveries)
-    # print("dict_deliveries_from_warehouse:", dict_deliveries_from_warehouse)
-    # print("stores_simulation:", stores_simulation)
-    # print("skus_simulation:", skus_simulation)
-    # print("dict_sales:", dict_sales)
-    # print("dict_stocks:", dict_stocks)
-    # print("start_dates:", start_dates)
-    # print("end_dates:", end_dates)
-    # print("strategy_names:", strategy_names)
 
     print("number of skus:", len(skus_simulation))
 
