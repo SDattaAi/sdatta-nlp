@@ -1,5 +1,5 @@
 import pytest
-from ... fashion_strategy.simulation.simulation_general import update_current_stock_with_kill_sku
+from ... fashion_strategy.generalization_version_factory.utils_ import update_current_stock_with_kill_sku
 
 
 current_stock5 = {'store1': {'sku1': 1, 'sku2': 2, 'sku3': 3}}

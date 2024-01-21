@@ -1,6 +1,5 @@
 import pytest
-import numpy as np
-from ... fashion_strategy.simulation.simulation_general import kill_and_save_results
+from ... fashion_strategy.generalization_version_factory.utils_ import kill_and_save_results
 
 # Example inputs for the test case
 accumulated_stocks1 = {

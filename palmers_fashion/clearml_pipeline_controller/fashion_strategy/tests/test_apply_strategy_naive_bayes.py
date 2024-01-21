@@ -1,7 +1,6 @@
 import pytest
 
 # Import the function you want to test
-from ... fashion_strategy.simulation.simulation_general import apply_strategy_naive_bayes
 
 # Define some example input data
 # vv

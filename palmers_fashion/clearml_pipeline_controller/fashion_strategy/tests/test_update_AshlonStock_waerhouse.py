@@ -1,6 +1,5 @@
 import pytest
-import pandas as pd
-from ...fashion_strategy.simulation.simulation_general import update_AshlonStock_waerhouse
+from ... fashion_strategy.generalization_version_factory.utils_ import update_AshlonStock_waerhouse
 
 sku = 'sku1'
 store = 'store1'

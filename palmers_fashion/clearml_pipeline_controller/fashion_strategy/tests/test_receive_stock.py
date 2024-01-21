@@ -1,5 +1,5 @@
 
-from ... fashion_strategy.simulation.simulation_general import receive_stock
+from ... fashion_strategy.generalization_version_factory.utils_ import receive_stock
 import pytest
 
 

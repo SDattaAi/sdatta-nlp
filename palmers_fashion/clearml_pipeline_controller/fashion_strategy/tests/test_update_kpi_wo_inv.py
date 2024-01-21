@@ -1,5 +1,5 @@
 import pytest
-from ... fashion_strategy.simulation.simulation_general import update_kpi_wo_inv
+from ... fashion_strategy.generalization_version_factory.utils_ import update_kpi_wo_inv
 
 # Sample input and expected output dictionaries for testing
 d_wo_inv1 = {'sku1': {'store1': 2, 'store2': 3, 'VZ01':100}, 'sku2': {'store1': 4, 'store2': 5, 'VZ01':100}}

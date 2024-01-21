@@ -1,5 +1,5 @@
 import pytest
-from ... fashion_strategy.simulation.simulation_general import update_info_for_kpi
+from ... fashion_strategy.generalization_version_factory.utils_ import update_info_for_kpi
 
 # Sample input and expected output dictionaries for testing
 accumulated_stocks1 = {

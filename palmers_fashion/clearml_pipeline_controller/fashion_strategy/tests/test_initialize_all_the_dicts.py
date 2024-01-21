@@ -1,5 +1,5 @@
 
-from ... fashion_strategy.simulation.simulation_general import initialize_all_the_dicts
+from ... fashion_strategy.generalization_version_factory.utils_ import initialize_all_the_dicts
 import pytest
 
 skus_simulation1 = ['sku1', 'sku2']

@@ -1,5 +1,7 @@
 import pytest
-from ... fashion_strategy.simulation.simulation_general import extract_last_sale_for_sku
+from ... fashion_strategy.generalization_version_factory.utils_ import extract_last_sale_for_sku
+
+
 store1 = 'store1'
 store2 = 'store2'
 sku1 = 'sku1'

@@ -1,5 +1,5 @@
 
-from ... fashion_strategy.simulation.simulation_general import update_stocks_by_sales
+from ... fashion_strategy.generalization_version_factory.utils_ import update_stocks_by_sales
 import pytest
 
 dict_stocks1 = {'store1': {'sku1': 70}, 'store2': {'sku1': 60}}

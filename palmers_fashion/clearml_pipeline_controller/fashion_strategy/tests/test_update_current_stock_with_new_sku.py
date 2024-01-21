@@ -1,5 +1,5 @@
 import pytest
-from ... fashion_strategy.simulation.simulation_general import update_current_stock_with_new_sku
+from ... fashion_strategy.generalization_version_factory.utils_ import update_current_stock_with_new_sku
 
 current_stock1 = {'store1': {'sku1': 5}}
 start_dates1 = {'2024-01-19': [('sku1', 'store1')]}
