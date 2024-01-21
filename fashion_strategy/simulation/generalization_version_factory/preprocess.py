@@ -4,6 +4,7 @@ from datetime import datetime
 
 def dict_sales_from_f_sales_v(f_sales_v_fashion):
     dict_sales = {}
+    f_sales_v_fashion = f_sales_v_fashion.groupby(['store', 'date', 'sku']).sum().reset_index()
     for store in f_sales_v_fashion['store'].unique():
         store_data = f_sales_v_fashion[f_sales_v_fashion['store'] == store]
         dict_sales[str(store)] = {}
