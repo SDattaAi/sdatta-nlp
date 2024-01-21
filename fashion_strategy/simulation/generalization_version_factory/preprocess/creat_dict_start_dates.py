@@ -1,5 +1,5 @@
-from simulation.generalization.preprocess.filter_from_first_non_zero import filter_from_first_non_zero
-from simulation.generalization.preprocess.filter_from_first_non_zero_warehouse import filter_from_first_non_zero_warehouse
+from fashion_strategy.simulation.generalization_version_factory.preprocess.filter_from_first_non_zero import filter_from_first_non_zero
+from fashion_strategy.simulation.generalization_version_factory.preprocess.filter_from_first_non_zero_warehouse import filter_from_first_non_zero_warehouse
 def creat_dict_start_dates(df_palmers, df_warehouse):
     """
     dic_start_dates[date] = [(sku, store),...]

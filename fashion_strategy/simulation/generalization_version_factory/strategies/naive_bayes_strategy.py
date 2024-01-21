@@ -1,5 +1,5 @@
-from simulation.generalization_version_factory.strategies.general_strategy import GeneralStrategy
-from simulation.generalization_version_factory.forecaster.naive_bayes_forecaster import NaiveBayesForecasting
+from fashion_strategy.simulation.generalization_version_factory.strategies.general_strategy import GeneralStrategy
+from fashion_strategy.simulation.generalization_version_factory.forecaster.naive_bayes_forecaster import NaiveBayesForecasting
 
 class NaiveBayesStrategy(GeneralStrategy):
     def __init__(self, current_stock, AshlonStock, ActiveStores, dict_sales, accumulated_stocks, date, forecasting_strategy = None, **kwargs):

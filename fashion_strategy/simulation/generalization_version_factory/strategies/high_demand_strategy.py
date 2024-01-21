@@ -1,5 +1,5 @@
-from simulation.generalization_version_factory.strategies.general_strategy import GeneralStrategy
-from simulation.generalization_version_factory.forecaster.high_demand_forecaster import HighDemandForecasting
+from fashion_strategy.simulation.generalization_version_factory.strategies.general_strategy import GeneralStrategy
+from fashion_strategy.simulation.generalization_version_factory.forecaster.high_demand_forecaster import HighDemandForecasting
 # from datetime import datetime, timedelta
 import numpy as np
 from collections import Counter

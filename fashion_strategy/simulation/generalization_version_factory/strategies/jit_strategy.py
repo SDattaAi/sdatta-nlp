@@ -1,5 +1,5 @@
-from simulation.generalization_version_factory.strategies.general_strategy import GeneralStrategy
-from simulation.generalization_version_factory.forecaster.jit_forecaster import JITForecasting
+from fashion_strategy.simulation.generalization_version_factory.strategies.general_strategy import GeneralStrategy
+from fashion_strategy.simulation.generalization_version_factory.forecaster.jit_forecaster import JITForecasting
 import numpy as np
 from datetime import datetime, timedelta
 import pandas as pd

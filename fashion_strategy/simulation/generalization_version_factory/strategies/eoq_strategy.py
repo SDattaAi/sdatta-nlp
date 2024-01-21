@@ -1,5 +1,5 @@
-from simulation.generalization_version_factory.strategies.general_strategy import GeneralStrategy
-from simulation.generalization_version_factory.forecaster.eoq_forecaster import EOQForecasting
+from fashion_strategy.simulation.generalization_version_factory.strategies.general_strategy import GeneralStrategy
+from fashion_strategy.simulation.generalization_version_factory.forecaster.eoq_forecaster import EOQForecasting
 import numpy as np
 class EoqStrategy(GeneralStrategy):
     def __init__(self, current_stock, AshlonStock, ActiveStores, dict_sales, accumulated_stocks, date, forecasting_strategy = None, **kwargs):
