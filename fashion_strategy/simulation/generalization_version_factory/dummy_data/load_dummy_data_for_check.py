@@ -2,7 +2,6 @@ import pickle
 from clearml import Task
 import json
 
-
 def load_dummy_data_for_check(task_id):
     step2_task = Task.get_task(task_id=task_id)
     step2_task_artifacts = step2_task.artifacts
